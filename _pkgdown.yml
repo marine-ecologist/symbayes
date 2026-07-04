@@ -1,0 +1,120 @@
+url: https://marine-ecologist.github.io/symbayes
+
+template:
+  bootstrap: 5
+
+home:
+  title: Threshold-free, mixture-aware Symbiodiniaceae ITS2 profiling
+  description: >
+    A probabilistic alternative to SymPortal type profiles: three complementary
+    mixture models (DMM, LDA, HDP) plus tools to quantify over-classification
+    and mixed-community mislabelling.
+
+navbar:
+  structure:
+    left:  [intro, reference, articles]
+    right: [search, github]
+  components:
+    articles:
+      text: Articles
+      menu:
+        - text: "Methods"
+        - text: Overview of the pipeline
+          href: articles/overview.html
+        - text: "DMM: Dirichlet-Multinomial Mixture"
+          href: articles/dmm.html
+        - text: "LDA: Latent Dirichlet Allocation"
+          href: articles/lda.html
+        - text: "HDP: Hierarchical Dirichlet Process"
+          href: articles/hdp.html
+        - text: Generalist plots across models
+          href: articles/generalist.html
+        - text: -------
+        - text: "Case studies"
+        - text: Reanalysing a turbinaria SymPortal run
+          href: articles/case-study-turb18.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/yourname/symbayes
+      aria-label: GitHub
+
+reference:
+  - title: "Entry points"
+    desc: >
+      Read a SymPortal run and prepare it for modelling. Everything flows
+      through a single `symbayes` object.
+    contents:
+      - import
+      - filter_samples
+
+  - title: "Fit a model"
+    desc: >
+      The three mixture models. Each fits, selects (or infers) the number of
+      groups, and writes a standardised membership object into the `symbayes`
+      object.
+    contents:
+      - fit_dmm
+      - fit_lda
+      - fit_hdp
+
+  - title: "Generalist plots"
+    desc: >
+      Visualisations that apply to any fitted model via a
+      `model = c("dmm", "lda", "hdp")` argument.
+    contents:
+      - plot_pcoa
+      - plot_barplot
+      - plot_exemplars
+      - plot_membership
+      - plot_contingency
+      - plot_top_seqs
+
+  - title: "DMM: diagnostics, prediction, validation"
+    desc: >
+      Functions specific to the Dirichlet-Multinomial Mixture (hard assignment).
+    contents:
+      - dmm_plot_selection
+      - predict_dmm
+      - dmm_loo
+      - dmm_subsample_cv
+      - dmm_simulate
+
+  - title: "LDA: topic diagnostics"
+    desc: Functions specific to Latent Dirichlet Allocation (fractional membership).
+    contents:
+      - lda_plot_ksearch
+      - lda_plot_similarity
+      - lda_topic_summary
+
+  - title: "HDP: threshold-free diagnostics"
+    desc: >
+      Functions specific to the Hierarchical Dirichlet Process, including
+      over-classification quantification.
+    contents:
+      - hdp_plot_numcomp
+      - hdp_vs_symportal
+
+  - title: "Cross-model comparison"
+    desc: Compare group counts and within-sample mixing across models.
+    contents:
+      - compare_models
+      - compare_mixing
+      - compare_soft_hard
+      - match_profiles
+      - name_topics
+      - plot_admixtures
+      - plot_soft_hard
+      - plot_symportal_comparison
+      - set_dominance
+
+  - title: "Package"
+    contents:
+      - symbayes-package
+      - print.symbayes
+      - print.symbayes_membership
+
+
+footer:
+  structure:
+    left:
+    right:

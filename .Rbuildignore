@@ -1,0 +1,8 @@
+^_pkgdown\.yml$
+symbayes.Rproj
+^docs$
+^pkgdown$
+archive
+code
+Datasets
+^vignettes/articles$

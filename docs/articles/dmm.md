@@ -1,0 +1,104 @@
+# 2. DMM: Dirichlet-Multinomial Mixture
+
+The Dirichlet-Multinomial Mixture answers **how many discrete community
+types the dataset supports**, via formal model selection. It is a
+*hard-assignment* model: each sample belongs to one component. This
+vignette covers every DMM-specific function; generalist plots
+(`plot_pcoa`, `plot_barplot`, …) are shown in
+[`vignette("generalist")`](https://marine-ecologist.github.io/symbayes/articles/generalist.md).
+
+``` r
+library(symbayes)
+sp <- import("run.seqs.absolute.abund_only.txt",
+             profs_abund = "run.profiles.absolute.abund_only.txt",
+             profs_meta  = "run.profiles.meta_only.txt")
+sp <- filter_samples(sp)
+sp <- fit_dmm(sp, max_k = 10)
+```
+
+## Model selection
+
+[`fit_dmm()`](https://marine-ecologist.github.io/symbayes/reference/fit_dmm.md)
+evaluates `k = 1:max_k` and selects K by the Laplace approximation to
+the model evidence. Inspect the criteria:
+
+``` r
+dmm_plot_selection(sp)
+sp$dmm$meta$model_fit     # the Laplace / AIC / BIC table
+```
+
+## Assignment and certainty
+
+The membership object holds the posterior and per-sample certainty:
+
+``` r
+sp$dmm$k                   # selected number of components
+head(sp$dmm$theta)         # posterior membership (near one-hot)
+head(sp$dmm$meta$certainty)
+```
+
+DMM certainty is typically near 1.0 even for mixed samples: this is a
+property of the likelihood at amplicon read depths, not evidence of
+unmixed communities. The tools below probe whether that confidence is
+*stable*.
+
+## Prediction on new samples
+
+Score new count vectors against the fitted components with no refitting
+(closed-form Dirichlet-Multinomial predictive):
+
+``` r
+# A hypothetical C22-dominated sample
+model_seqs <- colnames(sp$count_mat)
+x <- setNames(rep(0L, length(model_seqs)), model_seqs)
+x[c("C22", "C3", "C1")] <- c(3000, 1500, 500)
+
+predict_dmm(sp, x)
+```
+
+## Leave-one-out cross-validation
+
+Refit on N-1 samples, predict the held-out one; reports concordance and
+flags samples that switch component (candidate boundary/mixed samples):
+
+``` r
+loo <- dmm_loo(sp)
+subset(loo, !concordant)
+```
+
+## Subsample cross-validation
+
+Faster alternative: repeatedly hold out a fraction and predict.
+
+``` r
+stab <- dmm_subsample_cv(sp, frac_test = 0.2, n_reps = 50)
+head(stab)                 # least stable samples first
+```
+
+## Simulation
+
+Three modes probe DMM behaviour.
+
+**Blend** two components across a gradient to trace the decision
+boundary:
+
+``` r
+blend <- dmm_simulate(sp, mode = "blend", blend_comps = c(1, 2),
+                      blend_range = seq(0, 1, 0.05))
+```
+
+**Perturb** real samples (reassign a fraction of reads) to test
+robustness — a predictively-neutral perturbation that flips many
+“certain” assignments demonstrates hard-assignment fragility:
+
+``` r
+perturb <- dmm_simulate(sp, mode = "perturb", perturb_frac = 0.10)
+mean(perturb$assigned == perturb$true_comp)    # accuracy under 10% noise
+```
+
+**From alpha** draws from each component’s own Dirichlet — a
+self-consistency check:
+
+``` r
+dmm_simulate(sp, mode = "from_alpha", n_sim = 200)
+```

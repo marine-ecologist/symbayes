@@ -1,0 +1,510 @@
+---
+title: "6. Example using Turbinaria"
+---
+
+```{r, include = FALSE}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE
+)
+
+```
+
+```{r, include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(kableExtra)
+library(symbayes)
+
+
+DATA_DIR  <- "~/symbayes/datasets/20230120T102936_turb18_remote"
+SP_PREFIX <- "241_20230127T162451_DBV_20230128T005644"  
+
+```
+
+# 1. Import and filter
+
+Import the key components from Symportal using `sp_import()` and bind to a single object `spd`
+
+```{r, eval=FALSE}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(kableExtra)
+library(symbayes)
+
+
+DATA_DIR  <- "~/symbayes/datasets/20230120T102936_turb18_remote"
+SP_PREFIX <- "241_20230127T162451_DBV_20230128T005644"  
+
+spd <- import(
+  seqs_abund   = file.path(DATA_DIR, "post_med_seqs",
+                           paste0(SP_PREFIX, ".seqs.absolute.abund_only.txt")),
+  profs_abund  = file.path(DATA_DIR, "its2_type_profiles",
+                           paste0(SP_PREFIX, ".profiles.absolute.abund_only.txt")),
+  profs_meta   = file.path(DATA_DIR, "its2_type_profiles",
+                           paste0(SP_PREFIX, ".profiles.meta_only.txt")),
+  seqs_meta    = file.path(DATA_DIR, "post_med_seqs",
+                           paste0(SP_PREFIX, ".seqs.absolute.meta_only.txt")),
+  sample_sheet = file.path(DATA_DIR, "sample_sheet.xlsx"),
+  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json")
+)
+
+```
+
+
+then (if needed) filter sequences to a minimum number of reads (`min_reads`), which acts identical to SymPortal's 200-sequence cutoff.
+
+```{r, eval=FALSE}
+spd <- filter_samples(spd, min_reads = 100, min_prev = 2)
+```
+
+
+
+## i) Fit DMM model:
+
+Process:
+  - Fits DMM for k = 1:max_k groups
+  - Selects the number of components by the Laplace approximation and BIC 
+  - Extracts posterior membership,
+  - Maps each sample's dominant profile and clade.
+
+```{r, eval=FALSE}
+
+spd <- fit_dmm(spd) 
+
+```
+
+
+
+## ii) Fit LDA model:
+
+LDA answers **what each sample is made of**. Unlike DMM, membership is
+*fractional*, so within-sample admixture is represented directly. This vignette
+covers every LDA-specific function.
+
+With `k = NULL` (the default), `fit_lda()` searches `k_range` and selects the
+**largest K with no redundant topic pairs** (cosine `< redundant_thresh`).
+This resists the shadow topics that perplexity-optimal K produces.
+
+```{r, eval=FALSE}
+spd <- fit_lda(spd)
+```
+
+
+### iii) fit HDP model:
+
+Hierarchical Dirichlet processes (HDPs) extend the mixture-model framework by allowing the number of latent components to be inferred from the data rather than fixed in advance. Like LDA, HDPs allow samples to have fractional membership across multiple latent community profiles, but they are threshold-free in the sense that the model can adapt the number of components as needed. This makes HDPs useful when both the number of community types and the composition of each sample are uncertain. In practice, HDPs can reveal fine-scale structure, but they may also infer fewer or more components depending on how much shared structure exists across samples.
+
+Fit the hdp model:
+
+```{r, eval=FALSE}
+
+spd <- fit_hdp(spd)             # flat, threshold-free
+```
+
+
+save models:
+
+```{r, eval=FALSE}
+
+saveRDS(spd, "~/symbayes/datasets/spd.rds")
+
+```
+
+```{r}
+
+spd <- readRDS("~/symbayes/datasets/spd.rds")
+
+
+```
+
+# 2. Dirichlet-multinomial mixture model
+DMMs treat each sample as belonging to one discrete community type. The model assumes that samples are generated from one of K underlying multinomial profiles, where each profile represents a characteristic assemblage or community state. In this sense, DMMs are useful when the goal is to classify samples into relatively clear groups, such as dominant Symbiodiniaceae community types. Assignment is usually hard, meaning each sample is allocated to a single best-fitting component, although assignment uncertainty can still be examined. The number of components, K, is typically selected by comparing models using criteria such as the Laplace approximation.
+
+
+
+
+`fit_dmm()` evaluates `k = 1:max_k` and selects K by the Laplace approximation
+to the model evidence. Inspect the criteria:
+
+```{r}
+dmm_plot_selection(spd)
+spd$dmm$meta$model_fit     # the Laplace / AIC / BIC table
+```
+
+Visualising the dmm outputs:
+
+
+## ii) Plot DMM model: {.tabset .tabset-pills}
+
+### PCOA
+```{r}
+plot_pcoa(spd, model = "dmm")
+```
+### Barplot
+```{r}
+plot_barplot(spd, model = "dmm")
+```
+### Exemplars
+```{r}
+plot_exemplars(spd, model = "dmm")
+```
+### Membership
+```{r}
+plot_membership(spd, model = "dmm")
+```
+### Contingency
+```{r}
+plot_contingency(spd, model = "dmm")
+```
+### Top Sequences
+```{r}
+plot_top_seqs(spd, model = "dmm")
+```
+
+
+
+## Model selection with DMM
+
+`fit_dmm()` evaluates `k = 1:max_k` and selects K by the Laplace approximation
+to the model evidence. Inspect the criteria:
+
+```{r}
+dmm_plot_selection(spd)
+spd$dmm$meta$model_fit     # the Laplace / AIC / BIC table
+```
+
+## Assignment and certainty
+
+The membership object holds the posterior and per-sample certainty:
+
+```{r}
+spd$dmm$k                   # selected number of components
+head(spd$dmm$theta)         # posterior membership (near one-hot)
+head(spd$dmm$meta$certainty)
+```
+
+DMM certainty is typically near 1.0 even for mixed samples: this is a property
+of the likelihood at amplicon read depths, not evidence of unmixed communities.
+The tools below probe whether that confidence is *stable*.
+
+### Diagnostics & Optimisation
+
+### Prediction on new samples
+
+Score new count vectors against the fitted components with no refitting
+(closed-form Dirichlet-Multinomial predictive):
+
+```{r}
+# A hypothetical C22-dominated sample
+model_seqs <- colnames(spd$count_mat)
+x <- setNames(rep(0L, length(model_seqs)), model_seqs)
+x[c("C22", "C3", "C1")] <- c(3000, 1500, 500)
+
+predict_dmm(spd, x)
+```
+
+### Leave-one-out cross-validation
+
+Refit on N-1 samples, predict the held-out one; reports concordance and flags
+samples that switch component (candidate boundary/mixed samples):
+
+```{r, eval=FALSE}
+loo <- dmm_loo(spd)
+subset(loo, !concordant)
+```
+
+### Subsample cross-validation
+
+Faster alternative: repeatedly hold out a fraction and predict.
+
+```{r, eval=FALSE}
+stab <- dmm_subsample_cv(spd, frac_test = 0.2, n_reps = 50)
+head(stab)                 # least stable samples first
+```
+
+### Simulation
+
+Three modes probe DMM behaviour.
+
+**Blend** two components across a gradient to trace the decision boundary:
+
+```{r, eval=FALSE}
+blend <- dmm_simulate(spd, mode = "blend", blend_comps = c(1, 2),
+                      blend_range = seq(0, 1, 0.05))
+```
+
+**Perturb** real samples (reassign a fraction of reads) to test robustness — a
+predictively-neutral perturbation that flips many "certain" assignments
+demonstrates hard-assignment fragility:
+
+```{r}
+perturb <- dmm_simulate(spd, mode = "perturb", perturb_frac = 0.10)
+mean(perturb$assigned == perturb$true_comp)    # accuracy under 10% noise
+```
+
+**From alpha** draws from each component's own Dirichlet — a self-consistency
+check:
+
+```{r, eval=FALSE}
+dmm_simulate(spd, mode = "from_alpha", n_sim = 200)
+```
+
+# 3. Latent Dirichlet allocation (LDA)
+
+LDA treats each sample as a mixture of latent topics rather than assigning it to a single community type. Each topic represents a recurring community profile, and each sample is described by fractional membership across those topics. This makes LDA useful when communities are not cleanly separated, or when samples contain combinations of multiple underlying assemblages. Instead of asking `“which group does this sample belong to?”`, LDA asks `“what is this sample made of?”`. The number of topics, K, is usually chosen by fitting models across a range of values and selecting a solution that balances interpretability, redundancy, and model fit.
+
+4-panel K diagnostics
+
+```{r}
+lda_plot_ksearch(spd)         
+```
+
+search table:
+
+```{r}
+spd$lda$meta$selection         
+```
+
+
+Note: a topic is a recurring compositional pattern inferred from the data.
+
+In LDA & HDP, a topic is not a fixed observed group, but a probability distribution over ITS2 profiles (i.e. a characteristic community profile, defined by high probabilities for particular ITS2 sequences or taxa).'
+
+
+### Admixtures
+
+```{r}
+plot_admixtures(spd, model = "lda")
+```
+
+## Topic redundancy
+
+Topic redundancy asks whether two inferred topics are actually meaningfully different, or whether the model has split one biological/community pattern into two near-duplicate topics. A cosine-similarity matrix compares every topic against every other topic based on their feature composition, where 0 = very different and 1 = almost identical.
+
+A pairwise similarity above about 0.85 suggests the topics may be redundant. That is, the model may have used two topics to describe what is effectively one community pattern. This is often called over-splitting.
+
+```{r}
+lda_plot_similarity(spd)
+#spd$lda$meta$redundant         # flagged redundant pairs (should be empty)
+```
+
+## Fractional membership
+
+Fractional membership means each sample is represented as a mixture of topics rather than being assigned to only one topic.
+
+Instead of saying:
+
+  `sample A belongs to topic 2`
+
+LDA says something more like:
+
+  `sample A is 70% topic 2, 20% topic 5, and 10% topic 1`
+
+These topic proportions sum to 1 for each sample. This is useful when samples contain mixed communities, transitional states, or multiple co-occurring assemblages.
+
+The dominant topic is the topic with the largest proportion in a sample. For example, if a sample is 80% topic 4, then topic 4 is its dominant topic.
+
+The maximum topic proportion describes how strongly a sample is dominated by one topic. A value near 1 means the sample is nearly pure. A lower value means the sample is more mixed.
+
+The number of topics above 5% gives a simple count of how many topics meaningfully contribute to a sample. If a sample has more than one topic above 5%, it can be treated as a mixed sample.
+
+The entropy summarises how evenly spread the sample is across topics. Low entropy means one topic dominates. High entropy means the sample is distributed across several topics. In ecological terms, entropy is a compact measure of how mixed or compositionally ambiguous a sample is.
+
+```{r}
+#spd$lda$k
+#head(spd$lda$theta)            # rows sum to 1, values fractional
+head(spd$metadata[, c("lda_dominant", "lda_entropy",
+                     "lda_max_prop", "lda_n_topics")])
+```
+
+`lda_n_topics` counts topics above 5% per sample; `> 1` marks a mixed sample.
+`lda_entropy` (bits) summarises mixing.
+
+## Topic summary
+
+`lda_topic_summary()` produces a report cross-referencing each topic to clade, host species, SymPortal
+profiles, and its exemplar composition:
+
+```{r}
+lda_topic_summary(spd, top_n = 9)
+```
+
+## Interpreting exemplar overlap
+
+Two topics sharing a sequence backbone are not necessarily redundant. Use the
+cosine matrix (redundancy), per-sample `theta` (mixing), and pure-sample counts
+together — a multi-coloured exemplar can reflect real intragenomic variation
+within one community type rather than mixing. See 
+
+```{r}
+plot_exemplars(spd, model = "lda")
+```
+
+and 
+
+```{r}
+plot_membership(spd, model = "lda")
+```
+
+```{r fig.height=5, fig.width=12}
+
+
+plot_barplot(spd, model = "lda")
+
+```
+
+```{r fig.height=8, fig.width=12}
+
+
+plot_admixtures(spd)
+
+```
+
+
+
+# 3. Hierarchical Dirichlet Process
+
+
+The HDP is the threshold-free, mixture-aware core of `symbayes`. The number of
+community types is **inferred from the data**, not specified, and samples may
+be admixed. It requires the `hdp` package:
+
+```{r}
+# devtools::install_github("NickWilliamsSanger/hdp", build_vignettes = FALSE)
+```
+
+
+In HDP, the model is fit by Gibbs sampling: rather than returning a single answer, the sampler takes hundreds of draws from the posterior distribution — each draw is one plausible clustering of the data given the model and priors. The blue histogram shows, across those posterior draws, how many raw clusters the sampler was using at each draw: it ranged 13–17, median 14. That spread is the posterior over cluster number — the model isn't committing to one value, it's expressing that ~14 clusters explains the data well, give or take. Crucially, these raw clusters are per-draw and not aligned across draws: cluster 5 in draw 100 need not be cluster 5 in draw 200. So the raw count isn't directly usable as "the components." 
+
+the `fit_hdp()` funbction thentakes all the posterior draws, matches up clusters that recur across them by cosine similarity (merging those above cos_merge = 0.90), and keeps only components that appear reproducibly across draws — discarding transient clusters that flickered in and out of individual draws without being stable features. The 14 raw → 10 extracted drop is exactly this: four of the raw clusters weren't reproducible enough (or were near-duplicates merged into others), leaving 10 stable components. "Inferred, not fixed" means the count came from the data's posterior rather than being specified, and "extracted" is the reproducible subset of that posterior you can actually name and interpret. The red line at 10 sitting left of the blue mass is expected and correct — extraction is meant to consolidate, not preserve the raw count.
+
+```{r}
+hdp_plot_numcomp(spd)                # inferred number of components
+```
+
+
+
+
+```{r}
+res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
+```
+
+Focus on the mixture profiles:
+
+```{r}
+res$mixture_profiles           # profiles that are HDP admixtures
+```
+
+
+```{r fig.height=5, fig.width=12}
+plot_barplot(spd, model="hdp")
+```
+
+
+```{r fig.height=8, fig.width=12}
+
+plot_exemplars(spd, model="hdp")
+```
+
+```{r}
+res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
+```
+
+```{r}
+
+plot_admixtures(spd, "hdp")
+
+```
+
+# 4. Compare fits
+
+
+## 4a) LDA 
+
+### lda v symportal
+
+```{r fig.height=8, fig.width=12}
+
+plot_symportal_comparison(spd, model="lda")
+
+```
+
+using the symportal naming concept:
+
+```{r}
+
+name_topics(spd, model = "lda") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+
+```
+
+
+### matching lda topics to symportal Majority ITS2 sequences
+
+Cosine similarity measures the angle between two vectors, ignoring their magnitude — it asks "do these point in the same direction?" not "are they the same size?"
+
+```{r}
+
+match_profiles(spd, model = "lda") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+```
+
+
+## 4b) hdp v symportal
+
+
+### hdp v symportal
+
+```{r fig.height=8, fig.width=12}
+plot_symportal_comparison(spd, model="hdp")
+
+```
+
+using the symportal naming concept:
+
+```{r}
+
+name_topics(spd, model = "hdp") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+
+```
+
+
+### matching hdp topics to symportal Majority ITS2 sequences
+
+Cosine similarity measures the angle between two vectors, ignoring their magnitude — it asks "do these point in the same direction?" not "are they the same size?"
+
+```{r}
+
+match_profiles(spd, model = "hdp") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+```
+

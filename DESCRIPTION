@@ -1,0 +1,53 @@
+Package: symbayes
+Type: Package
+Title: Threshold-Free, Mixture-Aware Profiling of Symbiodiniaceae ITS2 Data
+Version: 0.1.0
+Authors@R:
+    person("Jez", "Roff", email = "you@example.org", role = c("aut", "cre"))
+Description: A probabilistic framework for analysing SymPortal ITS2
+    Symbiodiniaceae output. Provides three complementary mixture models --
+    Dirichlet-Multinomial Mixture (DMM, hard assignment with formal model
+    selection), Latent Dirichlet Allocation (LDA, fractional membership with
+    redundancy-based topic-number selection), and a Hierarchical Dirichlet
+    Process (HDP, non-parametric and mixture-aware, inferring the number of
+    community types from the data). Includes generalist visualisations that
+    apply to any fitted model, model-specific diagnostics, and tools to
+    quantify SymPortal over-classification and mixed-community mislabelling.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1.0)
+Imports:
+    DirichletMultinomial,
+    topicmodels,
+    slam,
+    ggplot2,
+    dplyr,
+    tidyr,
+    tibble,
+    rlang,
+    vegan,
+    scales,
+    jsonlite,
+    patchwork,
+    stats,
+    utils
+Suggests:
+    hdp,
+    brms,
+    ape,
+    Biostrings,
+    readxl,
+    mclust,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+biocViews:
+URL: https://github.com/yourname/symbayes
+BugReports: https://github.com/yourname/symbayes/issues
+Config/roxygen2/version: 8.0.0
+Config/Needs/website: rmarkdown
