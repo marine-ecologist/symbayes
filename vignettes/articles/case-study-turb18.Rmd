@@ -7,7 +7,7 @@ title: "6. Example using Turbinaria"
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  cache = TRUE
+  cache = FALSE
 )
 
 ```
