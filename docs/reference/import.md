@@ -15,6 +15,7 @@ import(
   seqs_meta = NULL,
   sample_sheet = NULL,
   colour_dict = NULL,
+  prof_colour_dict = NULL,
   sheet_skip = 1
 )
 ```
@@ -49,6 +50,12 @@ import(
 
   Path to `color_dict_post_med.json`. Optional; used for
   SymPortal-consistent sequence colours in bar plots.
+
+- prof_colour_dict:
+
+  Path to `prof_color_dict.json` (SymPortal profile colours, keyed by
+  profile UID). Optional; used for SymPortal-consistent profile colours
+  in the comparison plots.
 
 - sheet_skip:
 

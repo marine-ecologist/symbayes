@@ -87,23 +87,39 @@ fit_hdp <- function(sp, group_var = NULL,
     message("  note: large raw-vs-extracted gap; if under-resolved try cos_merge ~0.95")
 
   # --- Extract per-sample and per-component distributions ---------------------
-  dp_distn <- hdp::comp_dp_distn(multi)$mean
+  # comp_dp_distn()$mean can be a single matrix OR a list of matrices depending
+  # on the hdp version / object structure. Coerce to a matrix.
+  dp_mean <- hdp::comp_dp_distn(multi)$mean
+  if (is.list(dp_mean) && !is.data.frame(dp_mean)) {
+    # list of per-DP row vectors -> bind into a matrix
+    dp_distn <- do.call(rbind, dp_mean)
+  } else {
+    dp_distn <- as.matrix(dp_mean)
+  }
   sample_rows <- (nrow(dp_distn) - n_samp + 1):nrow(dp_distn)
   theta_full <- dp_distn[sample_rows, , drop = FALSE]
+  storage.mode(theta_full) <- "double"
   rownames(theta_full) <- rownames(mat)
 
-  residual <- theta_full[, 1]
+  residual <- as.numeric(theta_full[, 1])
+  names(residual) <- rownames(theta_full)
   theta <- theta_full[, -1, drop = FALSE]
+  storage.mode(theta) <- "double"
   colnames(theta) <- paste0("HDP_", seq_len(ncol(theta)))
 
-  beta <- hdp::comp_categ_distn(multi)$mean[-1, , drop = FALSE]
+  cd_mean <- hdp::comp_categ_distn(multi)$mean
+  cd_mean <- if (is.list(cd_mean) && !is.data.frame(cd_mean))
+    do.call(rbind, cd_mean) else as.matrix(cd_mean)
+  beta <- cd_mean[-1, , drop = FALSE]
+  storage.mode(beta) <- "double"
   rownames(beta) <- paste0("HDP_", seq_len(nrow(beta)))
   colnames(beta) <- colnames(mat)
 
-  dominant <- setNames(apply(theta, 1, which.max), rownames(theta))
-  entropy  <- apply(theta, 1, .entropy)
-  max_prop <- apply(theta, 1, max)
-  n_comp_s <- apply(theta, 1, function(p) sum(p > 0.05))
+  dominant <- setNames(as.integer(apply(theta, 1, which.max)), rownames(theta))
+  entropy  <- as.numeric(apply(theta, 1, .entropy))
+  max_prop <- as.numeric(apply(theta, 1, max))
+  n_comp_s <- as.integer(apply(theta, 1, function(p) sum(p > 0.05)))
+  names(entropy) <- names(max_prop) <- names(n_comp_s) <- rownames(theta)
 
   md <- sp$metadata
   md$hdp_dominant <- factor(dominant[md$sample_uid])

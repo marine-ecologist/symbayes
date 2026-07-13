@@ -32,7 +32,8 @@ of the pipeline."></head><body>
     <li><a class="dropdown-item" href="../articles/generalist.html">Generalist plots across models</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case studies</h6></li>
-    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Reanalysing a turbinaria SymPortal run</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Turbinaria</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-pocillopora.html">Pocillopora</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -66,6 +67,7 @@ of the pipeline.</p>
 <span>  seqs_meta <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_sheet <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  colour_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prof_colour_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sheet_skip <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,6 +104,12 @@ the <span class="pkg">readxl</span> package.</p></dd>
 <dt id="arg-colour-dict">colour_dict<a class="anchor" aria-label="anchor" href="#arg-colour-dict"></a></dt>
 <dd><p>Path to <code>color_dict_post_med.json</code>. Optional; used for
 SymPortal-consistent sequence colours in bar plots.</p></dd>
+
+
+<dt id="arg-prof-colour-dict">prof_colour_dict<a class="anchor" aria-label="anchor" href="#arg-prof-colour-dict"></a></dt>
+<dd><p>Path to <code>prof_color_dict.json</code> (SymPortal profile
+colours, keyed by profile UID). Optional; used for SymPortal-consistent
+profile colours in the comparison plots.</p></dd>
 
 
 <dt id="arg-sheet-skip">sheet_skip<a class="anchor" aria-label="anchor" href="#arg-sheet-skip"></a></dt>

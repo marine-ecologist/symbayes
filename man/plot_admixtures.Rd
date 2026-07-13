@@ -13,7 +13,8 @@ plot_admixtures(
   sample_label = "sample_name",
   box_colour = "grey15",
   label_profile = TRUE,
-  combine = TRUE
+  combine = TRUE,
+  scale = c("relative", "absolute")
 )
 }
 \arguments{
@@ -39,6 +40,10 @@ annotate the bottom panel with each sample's dominant SymPortal profile.}
 
 \item{combine}{If \code{TRUE} (default) return a \pkg{patchwork} of both panels;
 if \code{FALSE} return a list with \code{seq} and \code{admix} ggplots.}
+
+\item{scale}{Sequence panel (top) scaling: \code{"relative"} (default, sums to 1)
+or \code{"absolute"} (raw reads, revealing depth). The component panel (bottom)
+is always proportional (\code{theta}).}
 }
 \value{
 A \pkg{patchwork} object (or a list if \code{combine = FALSE}).

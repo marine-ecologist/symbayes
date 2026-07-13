@@ -30,7 +30,8 @@ one x-axis:"></head><body>
     <li><a class="dropdown-item" href="../articles/generalist.html">Generalist plots across models</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case studies</h6></li>
-    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Reanalysing a turbinaria SymPortal run</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Turbinaria</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-pocillopora.html">Pocillopora</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -65,7 +66,8 @@ one x-axis:</p>
 <span>  sample_label <span class="op">=</span> <span class="st">"sample_name"</span>,</span>
 <span>  box_colour <span class="op">=</span> <span class="st">"grey15"</span>,</span>
 <span>  label_profile <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  combine <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"relative"</span>, <span class="st">"absolute"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,6 +114,12 @@ annotate the bottom panel with each sample's dominant SymPortal profile.</p></dd
 <dt id="arg-combine">combine<a class="anchor" aria-label="anchor" href="#arg-combine"></a></dt>
 <dd><p>If <code>TRUE</code> (default) return a <span class="pkg">patchwork</span> of both panels;
 if <code>FALSE</code> return a list with <code>seq</code> and <code>admix</code> ggplots.</p></dd>
+
+
+<dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
+<dd><p>Sequence panel (top) scaling: <code>"relative"</code> (default, sums to 1)
+or <code>"absolute"</code> (raw reads, revealing depth). The component panel (bottom)
+is always proportional (<code>theta</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

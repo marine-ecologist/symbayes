@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>6. Example using Turbinaria • symbayes</title>
+<title>6. Example using turbinaria • symbayes</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="6. Example using Turbinaria">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="6. Example using turbinaria">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -41,7 +41,8 @@
     <li><a class="dropdown-item" href="../articles/generalist.html">Generalist plots across models</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Case studies</h6></li>
-    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Reanalysing a turbinaria SymPortal run</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-turb18.html">Turbinaria</a></li>
+    <li><a class="dropdown-item" href="../articles/case-study-pocillopora.html">Pocillopora</a></li>
   </ul>
 </li>
       </ul>
@@ -63,7 +64,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>6. Example using Turbinaria</h1>
+      <h1>6. Example using turbinaria</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/yourname/symbayes/blob/HEAD/vignettes/articles/case-study-turb18.Rmd" class="external-link"><code>vignettes/articles/case-study-turb18.Rmd</code></a></small>
@@ -72,6 +73,17 @@
 
     
     
+<style>
+.scroll-x {
+  overflow-x: scroll;
+  width: 100%;
+}
+
+.scroll-x img,
+.scroll-x svg {
+  max-width: none;
+}
+</style>
 <div class="section level2">
 <h2 id="import-and-filter">1. Import and filter<a class="anchor" aria-label="anchor" href="#import-and-filter"></a>
 </h2>
@@ -99,20 +111,23 @@
 <span>  seqs_meta    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DATA_DIR</span>, <span class="st">"post_med_seqs"</span>,</span>
 <span>                           <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">SP_PREFIX</span>, <span class="st">".seqs.absolute.meta_only.txt"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  sample_sheet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DATA_DIR</span>, <span class="st">"sample_sheet.xlsx"</span><span class="op">)</span>,</span>
-<span>  colour_dict  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DATA_DIR</span>, <span class="st">"html"</span>, <span class="st">"color_dict_post_med.json"</span><span class="op">)</span></span>
+<span>  colour_dict  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DATA_DIR</span>, <span class="st">"html"</span>, <span class="st">"color_dict_post_med.json"</span><span class="op">)</span>,</span>
+<span>  prof_colour_dict <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DATA_DIR</span>, <span class="st">"html"</span>, <span class="st">"prof_color_dict.json"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>then (if needed) filter sequences to a minimum number of reads
 (<code>min_reads</code>), which acts identical to SymPortal’s
 200-sequence cutoff.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_samples.html">filter_samples</a></span><span class="op">(</span><span class="va">spd</span>, min_reads <span class="op">=</span> <span class="fl">100</span>, min_prev <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"~/symbayes/datasets/spd.rds"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="i-fit-dmm-model">i) Fit DMM model:<a class="anchor" aria-label="anchor" href="#i-fit-dmm-model"></a>
 </h3>
 <p>Process: - Fits DMM for k = 1:max_k groups - Selects the number of
 components by the Laplace approximation and BIC - Extracts posterior
 membership, - Maps each sample’s dominant profile and clade.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_dmm.html">fit_dmm</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span> </span></code></pre></div>
 </div>
@@ -128,7 +143,7 @@ searches <code>k_range</code> and selects the <strong>largest K with no
 redundant topic pairs</strong> (cosine
 <code>&lt; redundant_thresh</code>). This resists the shadow topics that
 perplexity-optimal K produces.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_lda.html">fit_lda</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="iii-fit-hdp-model">iii) fit HDP model:<a class="anchor" aria-label="anchor" href="#iii-fit-hdp-model"></a>
@@ -144,14 +159,14 @@ uncertain. In practice, HDPs can reveal fine-scale structure, but they
 may also infer fewer or more components depending on how much shared
 structure exists across samples.</p>
 <p>Fit the hdp model:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_hdp.html">fit_hdp</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span>             <span class="co"># flat, threshold-free</span></span></code></pre></div>
 <p>save models:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">spd</span>, <span class="st">"~/symbayes/datasets/spd.rds"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">spd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"~/symbayes/datasets/spd.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -173,10 +188,10 @@ such as the Laplace approximation.</p>
 <p><code><a href="../reference/fit_dmm.html">fit_dmm()</a></code> evaluates <code>k = 1:max_k</code> and selects
 K by the Laplace approximation to the model evidence. Inspect the
 criteria:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dmm_plot_selection.html">dmm_plot_selection</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span><span class="op">$</span><span class="va">dmm</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">model_fit</span>     <span class="co"># the Laplace / AIC / BIC table</span></span>
 <span><span class="co">#&gt;     K  Laplace      AIC      BIC</span></span>
 <span><span class="co">#&gt; 1   1 21566.51 21864.44 22256.63</span></span>
@@ -196,27 +211,27 @@ criteria:</p>
 <div class="section level4">
 <h4 id="pcoa">PCOA<a class="anchor" aria-label="anchor" href="#pcoa"></a>
 </h4>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_pcoa.html">plot_pcoa</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700">
 ### Barplot</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_barplot.html">plot_barplot</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="700">
 ### Exemplars</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_exemplars.html">plot_exemplars</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="700">
 ### Membership</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_membership.html">plot_membership</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="700">
 ### Contingency</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_contingency.html">plot_contingency</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="700">
 ### Top Sequences</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_top_seqs.html">plot_top_seqs</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"dmm"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="700"></p>
 </div>
@@ -227,10 +242,10 @@ criteria:</p>
 <p><code><a href="../reference/fit_dmm.html">fit_dmm()</a></code> evaluates <code>k = 1:max_k</code> and selects
 K by the Laplace approximation to the model evidence. Inspect the
 criteria:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dmm_plot_selection.html">dmm_plot_selection</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span><span class="op">$</span><span class="va">dmm</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">model_fit</span>     <span class="co"># the Laplace / AIC / BIC table</span></span>
 <span><span class="co">#&gt;     K  Laplace      AIC      BIC</span></span>
 <span><span class="co">#&gt; 1   1 21566.51 21864.44 22256.63</span></span>
@@ -249,7 +264,7 @@ criteria:</p>
 </h3>
 <p>The membership object holds the posterior and per-sample
 certainty:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span><span class="op">$</span><span class="va">dmm</span><span class="op">$</span><span class="va">k</span>                   <span class="co"># selected number of components</span></span>
 <span><span class="co">#&gt; [1] 5</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">spd</span><span class="op">$</span><span class="va">dmm</span><span class="op">$</span><span class="va">theta</span><span class="op">)</span>         <span class="co"># posterior membership (near one-hot)</span></span>
@@ -276,7 +291,7 @@ unmixed communities. The tools below probe whether that confidence is
 </h4>
 <p>Score new count vectors against the fitted components with no
 refitting (closed-form Dirichlet-Multinomial predictive):</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># A hypothetical C22-dominated sample</span></span>
 <span><span class="va">model_seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">spd</span><span class="op">$</span><span class="va">count_mat</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">model_seqs</span><span class="op">)</span><span class="op">)</span>, <span class="va">model_seqs</span><span class="op">)</span></span>
@@ -294,7 +309,7 @@ refitting (closed-form Dirichlet-Multinomial predictive):</p>
 <p>Refit on N-1 samples, predict the held-out one; reports concordance
 and flags samples that switch component (candidate boundary/mixed
 samples):</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmm_loo.html">dmm_loo</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">loo</span>, <span class="op">!</span><span class="va">concordant</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -302,7 +317,7 @@ samples):</p>
 <h4 id="subsample-cross-validation">Subsample cross-validation<a class="anchor" aria-label="anchor" href="#subsample-cross-validation"></a>
 </h4>
 <p>Faster alternative: repeatedly hold out a fraction and predict.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmm_subsample_cv.html">dmm_subsample_cv</a></span><span class="op">(</span><span class="va">spd</span>, frac_test <span class="op">=</span> <span class="fl">0.2</span>, n_reps <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">stab</span><span class="op">)</span>                 <span class="co"># least stable samples first</span></span></code></pre></div>
 </div>
@@ -312,20 +327,20 @@ samples):</p>
 <p>Three modes probe DMM behaviour.</p>
 <p><strong>Blend</strong> two components across a gradient to trace the
 decision boundary:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">blend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmm_simulate.html">dmm_simulate</a></span><span class="op">(</span><span class="va">spd</span>, mode <span class="op">=</span> <span class="st">"blend"</span>, blend_comps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>                      blend_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Perturb</strong> real samples (reassign a fraction of reads)
 to test robustness — a predictively-neutral perturbation that flips many
 “certain” assignments demonstrates hard-assignment fragility:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">perturb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dmm_simulate.html">dmm_simulate</a></span><span class="op">(</span><span class="va">spd</span>, mode <span class="op">=</span> <span class="st">"perturb"</span>, perturb_frac <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; perturb accuracy: 43.0%</span></span>
+<span><span class="co">#&gt; perturb accuracy: 37.0%</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">perturb</span><span class="op">$</span><span class="va">assigned</span> <span class="op">==</span> <span class="va">perturb</span><span class="op">$</span><span class="va">true_comp</span><span class="op">)</span>    <span class="co"># accuracy under 10% noise</span></span>
-<span><span class="co">#&gt; [1] 0.43</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.37</span></span></code></pre></div>
 <p><strong>From alpha</strong> draws from each component’s own Dirichlet
 — a self-consistency check:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dmm_simulate.html">dmm_simulate</a></span><span class="op">(</span><span class="va">spd</span>, mode <span class="op">=</span> <span class="st">"from_alpha"</span>, n_sim <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -345,11 +360,11 @@ usually chosen by fitting models across a range of values and selecting
 a solution that balances interpretability, redundancy, and model
 fit.</p>
 <p>4-panel K diagnostics</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lda_plot_ksearch.html">lda_plot_ksearch</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span>         </span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="700"></p>
 <p>search table:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spd</span><span class="op">$</span><span class="va">lda</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">selection</span>         </span>
 <span><span class="co">#&gt;     K max_cosine n_redundant n_pure_topics  pct_pure perplexity</span></span>
 <span><span class="co">#&gt; 1   2 0.01468625           0             2 100.00000  11.373098</span></span>
@@ -375,7 +390,7 @@ sequences or taxa).’</p>
 <div class="section level4">
 <h4 id="admixtures">Admixtures<a class="anchor" aria-label="anchor" href="#admixtures"></a>
 </h4>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_admixtures.html">plot_admixtures</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="700"></p>
 </div>
@@ -392,10 +407,10 @@ almost identical.</p>
 redundant. That is, the model may have used two topics to describe what
 is effectively one community pattern. This is often called
 over-splitting.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lda_plot_similarity.html">lda_plot_similarity</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#spd$lda$meta$redundant         # flagged redundant pairs (should be empty)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -424,7 +439,7 @@ Low entropy means one topic dominates. High entropy means the sample is
 distributed across several topics. In ecological terms, entropy is a
 compact measure of how mixed or compositionally ambiguous a sample
 is.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#spd$lda$k</span></span>
 <span><span class="co">#head(spd$lda$theta)            # rows sum to 1, values fractional</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">spd</span><span class="op">$</span><span class="va">metadata</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lda_dominant"</span>, <span class="st">"lda_entropy"</span>,</span>
@@ -446,7 +461,7 @@ is.</p>
 <p><code><a href="../reference/lda_topic_summary.html">lda_topic_summary()</a></code> produces a report cross-referencing
 each topic to clade, host species, SymPortal profiles, and its exemplar
 composition:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lda_topic_summary.html">lda_topic_summary</a></span><span class="op">(</span><span class="va">spd</span>, top_n <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span>
 <span><span class="co">#&gt; LDA topic exemplars (K = 9)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -566,19 +581,19 @@ Use the cosine matrix (redundancy), per-sample <code>theta</code>
 (mixing), and pure-sample counts together — a multi-coloured exemplar
 can reflect real intragenomic variation within one community type rather
 than mixing. See</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_exemplars.html">plot_exemplars</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-31-1.png" class="r-plt" alt="" width="700"></p>
 <p>and</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_membership.html">plot_membership</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_barplot.html">plot_barplot</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-33-1.png" class="r-plt" alt="" width="1152"></p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_admixtures.html">plot_admixtures</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span></span></code></pre></div>
@@ -592,7 +607,7 @@ than mixing. See</p>
 <code>symbayes</code>. The number of community types is <strong>inferred
 from the data</strong>, not specified, and samples may be admixed. It
 requires the <code>hdp</code> package:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("NickWilliamsSanger/hdp", build_vignettes = FALSE)</span></span></code></pre></div>
 <p>In HDP, the model is fit by Gibbs sampling: rather than returning a
 single answer, the sampler takes hundreds of draws from the posterior
@@ -618,12 +633,23 @@ count came from the data’s posterior rather than being specified, and
 actually name and interpret. The red line at 10 sitting left of the blue
 mass is expected and correct — extraction is meant to consolidate, not
 preserve the raw count.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/hdp_plot_numcomp.html">hdp_plot_numcomp</a></span><span class="op">(</span><span class="va">spd</span><span class="op">)</span>                <span class="co"># inferred number of components</span></span>
 <span><span class="co">#&gt; Warning: Removed 2 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_bar()`).</span></span></code></pre></div>
 <p><img src="case-study-turb18_files/figure-html/unnamed-chunk-36-1.png" class="r-plt" alt="" width="700"></p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="section level4">
+<h4 id="admixtures-1">Admixtures<a class="anchor" aria-label="anchor" href="#admixtures-1"></a>
+</h4>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/plot_admixtures.html">plot_admixtures</a></span><span class="op">(</span><span class="va">spd</span>, <span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-37-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level4">
+<h4 id="overclassification">Overclassification<a class="anchor" aria-label="anchor" href="#overclassification"></a>
+</h4>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hdp_vs_symportal.html">hdp_vs_symportal</a></span><span class="op">(</span><span class="va">spd</span>, over_split_min_frac <span class="op">=</span> <span class="fl">0.7</span>, mixture_thresh <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="co">#&gt; SymPortal over-classification vs HDP</span></span>
 <span><span class="co">#&gt;   SymPortal profiles: 34</span></span>
@@ -639,8 +665,12 @@ preserve the raw count.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Mixture-as-taxa profiles (&lt;70% one comp): 8</span></span>
 <span><span class="co">#&gt;   Orphan profiles (excluded from over-split count): 0</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="mixtures">Mixtures<a class="anchor" aria-label="anchor" href="#mixtures"></a>
+</h4>
 <p>Focus on the mixture profiles:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span><span class="op">$</span><span class="va">mixture_profiles</span>           <span class="co"># profiles that are HDP admixtures</span></span>
 <span><span class="co">#&gt;                            sp_profile n_samples dominant_hdp dominant_frac</span></span>
 <span><span class="co">#&gt; 314241          C1/C22-C3-C22ad-C22ai        10            4    0.46729429</span></span>
@@ -660,997 +690,21 @@ preserve the raw count.</p>
 <span><span class="co">#&gt; 314185   0.9310338       TRUE            FALSE</span></span>
 <span><span class="co">#&gt; 313342   0.5023958       TRUE            FALSE</span></span>
 <span><span class="co">#&gt; 314912   1.0820993       TRUE            FALSE</span></span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_barplot.html">plot_barplot</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-39-1.png" class="r-plt" alt="" width="1152"></p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/plot_exemplars.html">plot_exemplars</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="1152"></p>
+</div>
+<div class="section level4">
+<h4 id="barplot">Barplot<a class="anchor" aria-label="anchor" href="#barplot"></a>
+</h4>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hdp_vs_symportal.html">hdp_vs_symportal</a></span><span class="op">(</span><span class="va">spd</span>, over_split_min_frac <span class="op">=</span> <span class="fl">0.7</span>, mixture_thresh <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
-<span><span class="co">#&gt; SymPortal over-classification vs HDP</span></span>
-<span><span class="co">#&gt;   SymPortal profiles: 34</span></span>
-<span><span class="co">#&gt;   HDP components: 10</span></span>
-<span><span class="co">#&gt;   Ratio: 3.4x</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Over-splitting (confident): 5 HDP components absorb &gt;1 profile</span></span>
-<span><span class="co">#&gt;     HDP_1 &lt;- 2 profiles: C22/C22ad-C3-C22ah, C22-C22ad-C3-C22ah-C1</span></span>
-<span><span class="co">#&gt;     HDP_2 &lt;- 3 profiles: C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3, C1/C1c-C1b-C72k-C42.2, C1/C3-C1c-C1b-C1w</span></span>
-<span><span class="co">#&gt;     HDP_3 &lt;- 2 profiles: D1/D6/D4/D1d-D10, D1/D4-D6-D1d</span></span>
-<span><span class="co">#&gt;     HDP_8 &lt;- 2 profiles: C50b/C1/C3-C3bm-C1c-C50cg-C50f, C50b-C3-C3bm-C50f</span></span>
-<span><span class="co">#&gt;     HDP_9 &lt;- 3 profiles: C3-C21-C3an, C21/C3-C1, C1/C21/C3/C42.2-C1b</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Mixture-as-taxa profiles (&lt;70% one comp): 8</span></span>
-<span><span class="co">#&gt;   Orphan profiles (excluded from over-split count): 0</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_barplot.html">plot_barplot</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="1152"></p>
+</div>
+<div class="section level4">
+<h4 id="exemplars">Exemplars<a class="anchor" aria-label="anchor" href="#exemplars"></a>
+</h4>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/plot_admixtures.html">plot_admixtures</a></span><span class="op">(</span><span class="va">spd</span>, <span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-42-1.png" class="r-plt" alt="" width="700"></p>
-</div>
-<div class="section level2">
-<h2 id="compare-fits">4. Compare fits<a class="anchor" aria-label="anchor" href="#compare-fits"></a>
-</h2>
-<div class="section level3">
-<h3 id="a-lda">4a) LDA<a class="anchor" aria-label="anchor" href="#a-lda"></a>
-</h3>
-<div class="section level4">
-<h4 id="lda-v-symportal">lda v symportal<a class="anchor" aria-label="anchor" href="#lda-v-symportal"></a>
-</h4>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/plot_symportal_comparison.html">plot_symportal_comparison</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"lda"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-43-1.png" class="r-plt" alt="" width="1152"></p>
-<p>using the symportal naming concept:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/name_topics.html">name_topics</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
-<span>    format <span class="op">=</span> <span class="st">"html"</span>,</span>
-<span>    digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>full_width <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<thead><tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:left;">
-group
-</th>
-<th style="text-align:left;">
-name
-</th>
-<th style="text-align:left;">
-clade
-</th>
-<th style="text-align:right;">
-entropy
-</th>
-<th style="text-align:right;">
-n_samples
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-C1n
-</td>
-<td style="text-align:left;">
-Topic_1
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.22
-</td>
-<td style="text-align:right;">
-6
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C22ad
-</td>
-<td style="text-align:left;">
-Topic_2
-</td>
-<td style="text-align:left;">
-C22ad/C22-C3
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-1.77
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C1
-</td>
-<td style="text-align:left;">
-Topic_3
-</td>
-<td style="text-align:left;">
-C1-C1c
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-1.78
-</td>
-<td style="text-align:right;">
-16
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C3
-</td>
-<td style="text-align:left;">
-Topic_4
-</td>
-<td style="text-align:left;">
-C3-C21
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.31
-</td>
-<td style="text-align:right;">
-9
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C50b
-</td>
-<td style="text-align:left;">
-Topic_5
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f-C50cg
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-3.09
-</td>
-<td style="text-align:right;">
-6
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C1nu
-</td>
-<td style="text-align:left;">
-Topic_6
-</td>
-<td style="text-align:left;">
-C1nu/C1nt/C1ns-C1
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.84
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C11
-</td>
-<td style="text-align:left;">
-Topic_7
-</td>
-<td style="text-align:left;">
-C1/C3xe/C42.2/C3xf
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-3.93
-</td>
-<td style="text-align:right;">
-15
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D1
-</td>
-<td style="text-align:left;">
-Topic_8
-</td>
-<td style="text-align:left;">
-D1-D6-D4
-</td>
-<td style="text-align:left;">
-D
-</td>
-<td style="text-align:right;">
-2.88
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C22
-</td>
-<td style="text-align:left;">
-Topic_9
-</td>
-<td style="text-align:left;">
-C22-C3-C22ad
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.07
-</td>
-<td style="text-align:right;">
-67
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level4">
-<h4 id="matching-lda-topics-to-symportal-majority-its2-sequences">matching lda topics to symportal Majority ITS2 sequences<a class="anchor" aria-label="anchor" href="#matching-lda-topics-to-symportal-majority-its2-sequences"></a>
-</h4>
-<p>Cosine similarity measures the angle between two vectors, ignoring
-their magnitude — it asks “do these point in the same direction?” not
-“are they the same size?”</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/match_profiles.html">match_profiles</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
-<span>    format <span class="op">=</span> <span class="st">"html"</span>,</span>
-<span>    digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>full_width <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<thead><tr>
-<th style="text-align:left;">
-group
-</th>
-<th style="text-align:left;">
-topic_name
-</th>
-<th style="text-align:right;">
-rank
-</th>
-<th style="text-align:left;">
-sp_profile
-</th>
-<th style="text-align:right;">
-cosine
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Topic_1
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_1
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C1/C1c-C1b-C72k-C42.2
-</td>
-<td style="text-align:right;">
-0.41
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_1
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C1/C3-C1c-C1b-C1w
-</td>
-<td style="text-align:right;">
-0.41
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_2
-</td>
-<td style="text-align:left;">
-C22ad/C22-C3
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C22/C22ad-C3
-</td>
-<td style="text-align:right;">
-0.99
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_2
-</td>
-<td style="text-align:left;">
-C22ad/C22-C3
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C22-C22ad-C3-C22ah-C1
-</td>
-<td style="text-align:right;">
-0.78
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_2
-</td>
-<td style="text-align:left;">
-C22ad/C22-C3
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C22/C22ad-C3-C22ah
-</td>
-<td style="text-align:right;">
-0.77
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_3
-</td>
-<td style="text-align:left;">
-C1-C1c
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C1/C1c-C1b-C72k-C42.2
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_3
-</td>
-<td style="text-align:left;">
-C1-C1c
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_3
-</td>
-<td style="text-align:left;">
-C1-C1c
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C1/C3-C1c-C1b-C1w
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_4
-</td>
-<td style="text-align:left;">
-C3-C21
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C3-C21-C3an
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_4
-</td>
-<td style="text-align:left;">
-C3-C21
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C21/C3-C1
-</td>
-<td style="text-align:right;">
-0.99
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_4
-</td>
-<td style="text-align:left;">
-C3-C21
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C1/C21/C3/C42.2-C1b
-</td>
-<td style="text-align:right;">
-0.99
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_5
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f-C50cg
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f
-</td>
-<td style="text-align:right;">
-0.94
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_5
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f-C50cg
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C50b/C1/C3-C3bm-C1c-C50cg-C50f
-</td>
-<td style="text-align:right;">
-0.92
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_5
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f-C50cg
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C21/C3-C1
-</td>
-<td style="text-align:right;">
-0.27
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_6
-</td>
-<td style="text-align:left;">
-C1nu/C1nt/C1ns-C1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C1nt/C1nu-C1ns-C1
-</td>
-<td style="text-align:right;">
-0.99
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_6
-</td>
-<td style="text-align:left;">
-C1nu/C1nt/C1ns-C1
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C1/C3-C1c-C1b-C1w
-</td>
-<td style="text-align:right;">
-0.28
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_6
-</td>
-<td style="text-align:left;">
-C1nu/C1nt/C1ns-C1
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C1/C1c-C1b-C72k-C42.2
-</td>
-<td style="text-align:right;">
-0.28
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_7
-</td>
-<td style="text-align:left;">
-C1/C3xe/C42.2/C3xf
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C1/C3xe/C3xf-C42.2-C3ih-C1b
-</td>
-<td style="text-align:right;">
-1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_7
-</td>
-<td style="text-align:left;">
-C1/C3xe/C42.2/C3xf
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C1-C42.2-C1b-C45k-C3xd-C1ab
-</td>
-<td style="text-align:right;">
-0.78
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_7
-</td>
-<td style="text-align:left;">
-C1/C3xe/C42.2/C3xf
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C1-C42.2-C1ab-C1b
-</td>
-<td style="text-align:right;">
-0.73
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_8
-</td>
-<td style="text-align:left;">
-D1-D6-D4
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-D1/D4-D6-D1d
-</td>
-<td style="text-align:right;">
-0.98
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_8
-</td>
-<td style="text-align:left;">
-D1-D6-D4
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-D1/D6/D4/D1d-D10
-</td>
-<td style="text-align:right;">
-0.95
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_8
-</td>
-<td style="text-align:left;">
-D1-D6-D4
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-D1/D4-D6-D4k-D1ej-D2.2
-</td>
-<td style="text-align:right;">
-0.88
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_9
-</td>
-<td style="text-align:left;">
-C22-C3-C22ad
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-C22/C22ad-C3-C22ah
-</td>
-<td style="text-align:right;">
-0.97
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_9
-</td>
-<td style="text-align:left;">
-C22-C3-C22ad
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-C22-C22ad-C3-C22ah-C1
-</td>
-<td style="text-align:right;">
-0.97
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Topic_9
-</td>
-<td style="text-align:left;">
-C22-C3-C22ad
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-C22/C1-C22ad-C3-C42.2
-</td>
-<td style="text-align:right;">
-0.74
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="section level3">
-<h3 id="b-hdp-v-symportal">4b) hdp v symportal<a class="anchor" aria-label="anchor" href="#b-hdp-v-symportal"></a>
-</h3>
-<div class="section level4">
-<h4 id="hdp-v-symportal">hdp v symportal<a class="anchor" aria-label="anchor" href="#hdp-v-symportal"></a>
-</h4>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_symportal_comparison.html">plot_symportal_comparison</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-46-1.png" class="r-plt" alt="" width="1152"></p>
-<p>using the symportal naming concept:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/name_topics.html">name_topics</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"hdp"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
-<span>    format <span class="op">=</span> <span class="st">"html"</span>,</span>
-<span>    digits <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>full_width <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<thead><tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:left;">
-group
-</th>
-<th style="text-align:left;">
-name
-</th>
-<th style="text-align:left;">
-clade
-</th>
-<th style="text-align:right;">
-entropy
-</th>
-<th style="text-align:right;">
-n_samples
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-C22
-</td>
-<td style="text-align:left;">
-HDP_1
-</td>
-<td style="text-align:left;">
-C22-C22ad-C3
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.20
-</td>
-<td style="text-align:right;">
-69
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C1
-</td>
-<td style="text-align:left;">
-HDP_2
-</td>
-<td style="text-align:left;">
-C1-C1c
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-1.76
-</td>
-<td style="text-align:right;">
-13
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D1
-</td>
-<td style="text-align:left;">
-HDP_3
-</td>
-<td style="text-align:left;">
-D1-D6-D4
-</td>
-<td style="text-align:left;">
-D
-</td>
-<td style="text-align:right;">
-2.77
-</td>
-<td style="text-align:right;">
-13
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C11
-</td>
-<td style="text-align:left;">
-HDP_4
-</td>
-<td style="text-align:left;">
-C1/C22/C3-C3n-C22ad
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-3.11
-</td>
-<td style="text-align:right;">
-7
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C12
-</td>
-<td style="text-align:left;">
-HDP_5
-</td>
-<td style="text-align:left;">
-C1/C3xe/C42.2/C3xf
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-3.70
-</td>
-<td style="text-align:right;">
-13
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C1n
-</td>
-<td style="text-align:left;">
-HDP_6
-</td>
-<td style="text-align:left;">
-C1n-C1-C3co
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-1.98
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C22ad
-</td>
-<td style="text-align:left;">
-HDP_7
-</td>
-<td style="text-align:left;">
-C22ad-C22-C3
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-1.75
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C50b
-</td>
-<td style="text-align:left;">
-HDP_8
-</td>
-<td style="text-align:left;">
-C50b-C3-C3bm-C50f-C50cg
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-3.12
-</td>
-<td style="text-align:right;">
-6
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C3
-</td>
-<td style="text-align:left;">
-HDP_9
-</td>
-<td style="text-align:left;">
-C3-2778029_C
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.49
-</td>
-<td style="text-align:right;">
-8
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C1nu
-</td>
-<td style="text-align:left;">
-HDP_10
-</td>
-<td style="text-align:left;">
-C1nu/C1nt/C1ns-C1
-</td>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:right;">
-2.80
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-</tbody>
-</table>
+<span><span class="fu"><a href="../reference/plot_exemplars.html">plot_exemplars</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"hdp"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-41-1.png" class="r-plt" alt="" width="1152"></p>
 </div>
 <div class="section level4">
 <h4 id="matching-hdp-topics-to-symportal-majority-its2-sequences">matching hdp topics to symportal Majority ITS2 sequences<a class="anchor" aria-label="anchor" href="#matching-hdp-topics-to-symportal-majority-its2-sequences"></a>
@@ -1658,7 +712,7 @@ C
 <p>Cosine similarity measures the angle between two vectors, ignoring
 their magnitude — it asks “do these point in the same direction?” not
 “are they the same size?”</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/match_profiles.html">match_profiles</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"hdp"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
@@ -2197,6 +1251,564 @@ C1/C1c-C1b-C72k-C42.2
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="section level2">
+<h2 id="compare-fits">4. Compare fits<a class="anchor" aria-label="anchor" href="#compare-fits"></a>
+</h2>
+<div class="section level3">
+<h3 id="a-lda">4a) LDA<a class="anchor" aria-label="anchor" href="#a-lda"></a>
+</h3>
+<div class="section level4">
+<h4 id="lda-v-symportal">lda v symportal<a class="anchor" aria-label="anchor" href="#lda-v-symportal"></a>
+</h4>
+<div class="scroll-x">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/plot_symportal_comparison.html">plot_symportal_comparison</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"lda"</span>, screen <span class="op">=</span> <span class="cn">TRUE</span>, use_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Overdispersion test (LDA), real read counts: 8 pairs tested</span></span>
+<span><span class="co">#&gt;   mixing (rho &gt;= 0.05):        7</span></span>
+<span><span class="co">#&gt;   ambiguous (0.01 &lt; rho &lt; 0.05): 1</span></span>
+<span><span class="co">#&gt;   intragenomic (rho &lt;= 0.01):  0</span></span>
+<span><span class="co">#&gt;   rho = beta-binomial overdispersion (0 = fixed ratio; higher = mixing).</span></span>
+<span><span class="co">#&gt;   psbA (single-copy) remains the definitive arbiter.</span></span>
+<span><span class="co">#&gt; Topic pair comparison (LDA): 36 pairs</span></span>
+<span><span class="co">#&gt;   redundant     0</span></span>
+<span><span class="co">#&gt;   intragenomic  1</span></span>
+<span><span class="co">#&gt;   mixing        7</span></span>
+<span><span class="co">#&gt;   ambiguous     0</span></span>
+<span><span class="co">#&gt;   distinct      28</span></span>
+<span><span class="co">#&gt;   (psbA remains the definitive arbiter for intragenomic vs mixing)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intragenomic screen (LDA):</span></span>
+<span><span class="co">#&gt;   9 topics -&gt; 8 suggested biological units (1 multi-topic groups)</span></span>
+<span><span class="co">#&gt;   3 sample(s) deviate from their group's fixed ratio (flagged)</span></span>
+<span><span class="co">#&gt;   Suggestion only; theta unchanged. Use merge_topics() to apply a grouping.</span></span></code></pre></div>
+<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-43-1.png" class="r-plt" alt="" width="150%"></p>
+</div>
+</div>
+<div class="section level4">
+<h4 id="matching-lda-topics-to-symportal-majority-its2-sequences">matching lda topics to symportal Majority ITS2 sequences<a class="anchor" aria-label="anchor" href="#matching-lda-topics-to-symportal-majority-its2-sequences"></a>
+</h4>
+<p>Cosine similarity measures the angle between two vectors, ignoring
+their magnitude — it asks “do these point in the same direction?” not
+“are they the same size?”</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/match_profiles.html">match_profiles</a></span><span class="op">(</span><span class="va">spd</span>, model <span class="op">=</span> <span class="st">"lda"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>    format <span class="op">=</span> <span class="st">"html"</span>,</span>
+<span>    digits <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>full_width <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+group
+</th>
+<th style="text-align:left;">
+topic_name
+</th>
+<th style="text-align:right;">
+rank
+</th>
+<th style="text-align:left;">
+sp_profile
+</th>
+<th style="text-align:right;">
+cosine
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Topic_1
+</td>
+<td style="text-align:left;">
+C1n-C1-C3co
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C1n-C1-C3co
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_1
+</td>
+<td style="text-align:left;">
+C1n-C1-C3co
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C1/C1c-C1b-C72k-C42.2
+</td>
+<td style="text-align:right;">
+0.41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_1
+</td>
+<td style="text-align:left;">
+C1n-C1-C3co
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C1/C3-C1c-C1b-C1w
+</td>
+<td style="text-align:right;">
+0.41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_2
+</td>
+<td style="text-align:left;">
+C22ad/C22-C3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C22/C22ad-C3
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_2
+</td>
+<td style="text-align:left;">
+C22ad/C22-C3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C22-C22ad-C3-C22ah-C1
+</td>
+<td style="text-align:right;">
+0.78
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_2
+</td>
+<td style="text-align:left;">
+C22ad/C22-C3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C22/C22ad-C3-C22ah
+</td>
+<td style="text-align:right;">
+0.77
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_3
+</td>
+<td style="text-align:left;">
+C1-C1c
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C1/C1c-C1b-C72k-C42.2
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_3
+</td>
+<td style="text-align:left;">
+C1-C1c
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_3
+</td>
+<td style="text-align:left;">
+C1-C1c
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C1/C3-C1c-C1b-C1w
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_4
+</td>
+<td style="text-align:left;">
+C3-C21
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C3-C21-C3an
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_4
+</td>
+<td style="text-align:left;">
+C3-C21
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C21/C3-C1
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_4
+</td>
+<td style="text-align:left;">
+C3-C21
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C1/C21/C3/C42.2-C1b
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_5
+</td>
+<td style="text-align:left;">
+C50b-C3-C3bm-C50f-C50cg
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C50b-C3-C3bm-C50f
+</td>
+<td style="text-align:right;">
+0.94
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_5
+</td>
+<td style="text-align:left;">
+C50b-C3-C3bm-C50f-C50cg
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C50b/C1/C3-C3bm-C1c-C50cg-C50f
+</td>
+<td style="text-align:right;">
+0.92
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_5
+</td>
+<td style="text-align:left;">
+C50b-C3-C3bm-C50f-C50cg
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C21/C3-C1
+</td>
+<td style="text-align:right;">
+0.27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_6
+</td>
+<td style="text-align:left;">
+C1nu/C1nt/C1ns-C1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C1nt/C1nu-C1ns-C1
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_6
+</td>
+<td style="text-align:left;">
+C1nu/C1nt/C1ns-C1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C1/C3-C1c-C1b-C1w
+</td>
+<td style="text-align:right;">
+0.28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_6
+</td>
+<td style="text-align:left;">
+C1nu/C1nt/C1ns-C1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C1/C1c-C1b-C72k-C42.2
+</td>
+<td style="text-align:right;">
+0.28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_7
+</td>
+<td style="text-align:left;">
+C1/C3xe/C42.2/C3xf
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C1/C3xe/C3xf-C42.2-C3ih-C1b
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_7
+</td>
+<td style="text-align:left;">
+C1/C3xe/C42.2/C3xf
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C1-C42.2-C1b-C45k-C3xd-C1ab
+</td>
+<td style="text-align:right;">
+0.78
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_7
+</td>
+<td style="text-align:left;">
+C1/C3xe/C42.2/C3xf
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C1-C42.2-C1ab-C1b
+</td>
+<td style="text-align:right;">
+0.73
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_8
+</td>
+<td style="text-align:left;">
+D1-D6-D4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+D1/D4-D6-D1d
+</td>
+<td style="text-align:right;">
+0.98
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_8
+</td>
+<td style="text-align:left;">
+D1-D6-D4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+D1/D6/D4/D1d-D10
+</td>
+<td style="text-align:right;">
+0.95
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_8
+</td>
+<td style="text-align:left;">
+D1-D6-D4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+D1/D4-D6-D4k-D1ej-D2.2
+</td>
+<td style="text-align:right;">
+0.88
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_9
+</td>
+<td style="text-align:left;">
+C22-C3-C22ad
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+C22/C22ad-C3-C22ah
+</td>
+<td style="text-align:right;">
+0.97
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_9
+</td>
+<td style="text-align:left;">
+C22-C3-C22ad
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+C22-C22ad-C3-C22ah-C1
+</td>
+<td style="text-align:right;">
+0.97
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topic_9
+</td>
+<td style="text-align:left;">
+C22-C3-C22ad
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+C22/C1-C22ad-C3-C42.2
+</td>
+<td style="text-align:right;">
+0.74
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section level3">
+<h3 id="b-hdp-v-symportal">4b) hdp v symportal<a class="anchor" aria-label="anchor" href="#b-hdp-v-symportal"></a>
+</h3>
+<div class="scroll-x">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/plot_symportal_comparison.html">plot_symportal_comparison</a></span><span class="op">(</span><span class="va">spd</span>, model<span class="op">=</span><span class="st">"lda"</span>, screen <span class="op">=</span> <span class="cn">TRUE</span>, use_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Overdispersion test (LDA), real read counts: 8 pairs tested</span></span>
+<span><span class="co">#&gt;   mixing (rho &gt;= 0.05):        7</span></span>
+<span><span class="co">#&gt;   ambiguous (0.01 &lt; rho &lt; 0.05): 1</span></span>
+<span><span class="co">#&gt;   intragenomic (rho &lt;= 0.01):  0</span></span>
+<span><span class="co">#&gt;   rho = beta-binomial overdispersion (0 = fixed ratio; higher = mixing).</span></span>
+<span><span class="co">#&gt;   psbA (single-copy) remains the definitive arbiter.</span></span>
+<span><span class="co">#&gt; Topic pair comparison (LDA): 36 pairs</span></span>
+<span><span class="co">#&gt;   redundant     0</span></span>
+<span><span class="co">#&gt;   intragenomic  1</span></span>
+<span><span class="co">#&gt;   mixing        7</span></span>
+<span><span class="co">#&gt;   ambiguous     0</span></span>
+<span><span class="co">#&gt;   distinct      28</span></span>
+<span><span class="co">#&gt;   (psbA remains the definitive arbiter for intragenomic vs mixing)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intragenomic screen (LDA):</span></span>
+<span><span class="co">#&gt;   9 topics -&gt; 8 suggested biological units (1 multi-topic groups)</span></span>
+<span><span class="co">#&gt;   3 sample(s) deviate from their group's fixed ratio (flagged)</span></span>
+<span><span class="co">#&gt;   Suggestion only; theta unchanged. Use merge_topics() to apply a grouping.</span></span></code></pre></div>
+<p><img src="case-study-turb18_files/figure-html/unnamed-chunk-45-1.png" class="r-plt" alt="" width="150%"></p>
 </div>
 </div>
 </div>

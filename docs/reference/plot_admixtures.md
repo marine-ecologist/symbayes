@@ -16,7 +16,8 @@ plot_admixtures(
   sample_label = "sample_name",
   box_colour = "grey15",
   label_profile = TRUE,
-  combine = TRUE
+  combine = TRUE,
+  scale = c("relative", "absolute")
 )
 ```
 
@@ -62,6 +63,12 @@ plot_admixtures(
 
   If `TRUE` (default) return a patchwork of both panels; if `FALSE`
   return a list with `seq` and `admix` ggplots.
+
+- scale:
+
+  Sequence panel (top) scaling: `"relative"` (default, sums to 1) or
+  `"absolute"` (raw reads, revealing depth). The component panel
+  (bottom) is always proportional (`theta`).
 
 ## Value
 

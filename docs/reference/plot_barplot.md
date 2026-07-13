@@ -13,7 +13,9 @@ plot_barplot(
   model = "dmm",
   min_pct = 1,
   sample_label = "sample_name",
-  show_conf = TRUE
+  show_conf = TRUE,
+  scale = c("relative", "absolute"),
+  panel_width = c("proportional", "equal")
 )
 ```
 
@@ -38,6 +40,18 @@ plot_barplot(
 - show_conf:
 
   Annotate bars with confidence (default `TRUE`).
+
+- scale:
+
+  `"relative"` (default; each sample sums to 1) or `"absolute"` (raw
+  read counts; bars reach different heights, revealing depth). In
+  absolute mode the confidence annotation is disabled.
+
+- panel_width:
+
+  `"proportional"` (default; panel width scales with the number of
+  samples in each group, via `facet_grid` + `space = "free_x"`) or
+  `"equal"` (all group panels the same width, via `facet_wrap`).
 
 ## Value
 

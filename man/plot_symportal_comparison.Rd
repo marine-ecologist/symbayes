@@ -9,7 +9,13 @@ plot_symportal_comparison(
   model = "hdp",
   sample_label = "sample_name",
   box_colour = "grey15",
-  show_x = FALSE
+  show_x = FALSE,
+  screen = FALSE,
+  majority = 0.6,
+  max_legend = 15,
+  n_seqs = 20,
+  residual = c("renormalise", "show"),
+  use_names = FALSE
 )
 }
 \arguments{
@@ -24,6 +30,27 @@ profiles present.}
 
 \item{show_x}{Draw sample labels on the bottom row (default \code{FALSE}; with
 many samples they are unreadable).}
+
+\item{screen}{If \code{TRUE}, row 1 uses \emph{screen-aware} assignment
+(\link{screen_intragenomic}): intragenomic topic pairs are collapsed to one unit
+before labelling, and samples that genuinely mix distinct units (a
+"mixing"-verdict pair) are shown as a distinct "true mix" band rather than
+forced to a single plurality topic. Default \code{FALSE} (raw \code{which.max}).}
+
+\item{majority}{Minimum merged-unit proportion for a sample to be called that
+unit under \code{screen = TRUE}; below it the sample is "true mix" (default 0.6).}
+
+\item{max_legend}{Maximum number of SymPortal profiles to list in the legend
+(the most frequent dominant profiles). All profiles are still coloured;
+only the legend is capped, to stay on-panel for large datasets (default 15).}
+
+\item{residual}{How to show model mass assigned to no component in the
+admixture row: \code{"renormalise"} (default; rescale each bar to sum to 1) or
+\code{"show"} (grey Residual segment so bars reach 1.0).}
+
+\item{use_names}{If \code{TRUE}, label topics/components in the model legend with
+their SymPortal-style composition names (from \link{name_topics}) instead of
+\code{Topic_N} / \code{HDP_N} (default \code{FALSE}).}
 }
 \value{
 A \pkg{patchwork} object (four rows).

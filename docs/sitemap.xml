@@ -2,6 +2,7 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/404.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/LICENSE-text.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/LICENSE.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/articles/case-study-pocillopora.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/articles/case-study-turb18.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/articles/dmm.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/articles/generalist.html</loc></url>
@@ -10,10 +11,13 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/articles/lda.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/articles/overview.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/authors.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/header.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/index.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/combine_symportal.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/compare_mixing.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/compare_models.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/compare_soft_hard.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/compare_topics.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dmm_loo.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dmm_plot_selection.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dmm_simulate.html</loc></url>
@@ -23,6 +27,7 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-clade_palette.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-cosine_matrix.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-count_to_dtm.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-defining_seqs.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-dmm_loglik.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-entropy.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-get_membership.html</loc></url>
@@ -33,7 +38,9 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-membership.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-mixture_sample_table.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-name_exemplar.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-profile_signature.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-redundant_pairs.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/dot-topic_palette.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/filter_samples.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/fit_dmm.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/fit_hdp.html</loc></url>
@@ -46,12 +53,14 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/lda_plot_similarity.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/lda_topic_summary.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/match_profiles.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/merge_topics.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/name_topics.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_admixtures.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_barplot.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_contingency.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_exemplars.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_membership.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_overdispersion.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_pcoa.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_soft_hard.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/plot_symportal_comparison.html</loc></url>
@@ -59,7 +68,9 @@
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/predict_dmm.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/print.symbayes.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/print.symbayes_membership.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/screen_intragenomic.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/set_dominance.html</loc></url>
 <url><loc>https://marine-ecologist.github.io/symbayes/reference/symbayes-package.html</loc></url>
+<url><loc>https://marine-ecologist.github.io/symbayes/reference/test_overdispersion.html</loc></url>
 </urlset>
 

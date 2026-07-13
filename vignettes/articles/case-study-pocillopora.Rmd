@@ -1,0 +1,194 @@
+---
+title: "6. Example using Pocillopora"
+output:
+  html_document:
+
+---
+
+<style>
+.scroll-x {
+  overflow-x: scroll;
+  width: 100%;
+}
+
+.scroll-x img,
+.scroll-x svg {
+  max-width: none;
+}
+</style>
+
+```{r, include = FALSE}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = FALSE
+)
+
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(kableExtra)
+library(symbayes)
+```
+
+
+```{r, eval=FALSE}
+
+
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(kableExtra)
+library(symbayes)
+
+
+
+SP_PREFIX <- "8_eugenia_pocillidae_all_20231010T020451"
+DATA_DIR  <- "~/symbayes/datasets/20231010T020451_pocill_all_uqserver/"
+
+pd <- import(
+  seqs_abund   = file.path(DATA_DIR, "post_med_seqs",
+                           paste0(SP_PREFIX, ".seqs.absolute.abund_only.txt")),
+  profs_abund  = file.path(DATA_DIR, "its2_type_profiles",
+                           paste0(SP_PREFIX, ".profiles.absolute.abund_only.txt")),
+  profs_meta   = file.path(DATA_DIR, "its2_type_profiles",
+                           paste0(SP_PREFIX, ".profiles.meta_only.txt")),
+  seqs_meta    = file.path(DATA_DIR, "post_med_seqs",
+                           paste0(SP_PREFIX, ".seqs.absolute.meta_only.txt")),
+  sample_sheet = file.path(DATA_DIR, "sample_sheet.xlsx"),
+  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json"),
+  prof_colour_dict = file.path(DATA_DIR, "html", "prof_color_dict.json")
+)
+
+pd <- filter_samples(pd, min_reads = 100, min_prev = 2)
+
+pd <- fit_dmm(pd) 
+pd <- fit_hdp(pd)   
+pd <- fit_lda(pd)
+
+saveRDS(pd, "~/symbayes/datasets/pd.rds")
+
+```
+```{r}
+pd <- readRDS("~/symbayes/datasets/pd.rds")
+```
+
+### LDA
+
+<div class="scroll-x">
+```{r fig.width=25, fig.height=8, out.width="150%"}
+
+library(symbayes)
+
+# screen = TRUE for intragenomics
+plot_symportal_comparison(pd, model="lda", screen = TRUE)
+```
+
+</div>
+
+
+```{r}
+
+plot_exemplars(pd, model="lda")
+
+```
+
+
+using the symportal naming concept:
+
+```{r}
+
+name_topics(pd, model = "lda") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+
+```
+
+
+```{r}
+
+match_profiles(pd, model = "lda") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+```
+
+
+```{r}
+
+compare_topics(pd, model = "lda")
+
+```
+
+```{r}
+scr <- screen_intragenomic(pd, "lda")
+scr$groups          # inspect first — see what it's proposing
+```
+
+
+
+### HDP 
+<div class="scroll-x">
+```{r fig.width=25, fig.height=8, out.width="150%"}
+
+plot_symportal_comparison(pd, model="hdp")
+
+```
+</div>
+
+```{r}
+
+plot_exemplars(pd, model="hdp")
+
+```
+
+
+using the symportal naming concept:
+
+```{r}
+
+name_topics(pd, model = "hdp") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+
+```
+
+
+```{r}
+
+match_profiles(pd, model = "hdp") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+
+```
+
+
+
+```{r}
+
+compare_topics(pd, model = "hdp")
+
+```
+
+```{r}
+scr <- screen_intragenomic(pd, "hdp")
+scr$groups          # inspect first — see what it's proposing
+```
+
+
+

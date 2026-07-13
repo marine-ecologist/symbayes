@@ -3,7 +3,9 @@
 ### All vignettes
 
 - [6. Example using
-  Turbinaria](https://marine-ecologist.github.io/symbayes/articles/case-study-turb18.md):
+  Pocillopora](https://marine-ecologist.github.io/symbayes/articles/case-study-pocillopora.md):
+- [6. Example using
+  turbinaria](https://marine-ecologist.github.io/symbayes/articles/case-study-turb18.md):
 - [2. DMM: Dirichlet-Multinomial
   Mixture](https://marine-ecologist.github.io/symbayes/articles/dmm.md):
 - [5. Generalist plots across

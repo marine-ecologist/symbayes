@@ -1,4 +1,4 @@
-# 6. Example using Turbinaria
+# 6. Example using turbinaria
 
 ## 1. Import and filter
 
@@ -26,7 +26,8 @@ spd <- import(
   seqs_meta    = file.path(DATA_DIR, "post_med_seqs",
                            paste0(SP_PREFIX, ".seqs.absolute.meta_only.txt")),
   sample_sheet = file.path(DATA_DIR, "sample_sheet.xlsx"),
-  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json")
+  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json"),
+  prof_colour_dict = file.path(DATA_DIR, "html", "prof_color_dict.json")
 )
 ```
 
@@ -35,6 +36,10 @@ then (if needed) filter sequences to a minimum number of reads
 
 ``` r
 spd <- filter_samples(spd, min_reads = 100, min_prev = 2)
+```
+
+``` r
+spd <- readRDS("~/symbayes/datasets/spd.rds")
 ```
 
 ### i) Fit DMM model:
@@ -290,9 +295,9 @@ robustness — a predictively-neutral perturbation that flips many
 
 ``` r
 perturb <- dmm_simulate(spd, mode = "perturb", perturb_frac = 0.10)
-#> perturb accuracy: 43.0%
+#> perturb accuracy: 37.0%
 mean(perturb$assigned == perturb$true_comp)    # accuracy under 10% noise
-#> [1] 0.43
+#> [1] 0.37
 ```
 
 **From alpha** draws from each component’s own Dirichlet — a
@@ -636,6 +641,17 @@ hdp_plot_numcomp(spd)                # inferred number of components
 
 ![](case-study-turb18_files/figure-html/unnamed-chunk-36-1.png)
 
+#### Admixtures
+
+``` r
+
+plot_admixtures(spd, "hdp")
+```
+
+![](case-study-turb18_files/figure-html/unnamed-chunk-37-1.png)
+
+#### Overclassification
+
 ``` r
 res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
 #> SymPortal over-classification vs HDP
@@ -653,6 +669,8 @@ res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
 #>   Mixture-as-taxa profiles (<70% one comp): 8
 #>   Orphan profiles (excluded from over-split count): 0
 ```
+
+#### Mixtures
 
 Focus on the mixture profiles:
 
@@ -678,161 +696,22 @@ res$mixture_profiles           # profiles that are HDP admixtures
 #> 314912   1.0820993       TRUE            FALSE
 ```
 
+#### Barplot
+
 ``` r
 plot_barplot(spd, model="hdp")
 ```
 
-![](case-study-turb18_files/figure-html/unnamed-chunk-39-1.png)
+![](case-study-turb18_files/figure-html/unnamed-chunk-40-1.png)
+
+#### Exemplars
 
 ``` r
 
 plot_exemplars(spd, model="hdp")
 ```
 
-![](case-study-turb18_files/figure-html/unnamed-chunk-40-1.png)
-
-``` r
-res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
-#> SymPortal over-classification vs HDP
-#>   SymPortal profiles: 34
-#>   HDP components: 10
-#>   Ratio: 3.4x
-#> 
-#>   Over-splitting (confident): 5 HDP components absorb >1 profile
-#>     HDP_1 <- 2 profiles: C22/C22ad-C3-C22ah, C22-C22ad-C3-C22ah-C1
-#>     HDP_2 <- 3 profiles: C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3, C1/C1c-C1b-C72k-C42.2, C1/C3-C1c-C1b-C1w
-#>     HDP_3 <- 2 profiles: D1/D6/D4/D1d-D10, D1/D4-D6-D1d
-#>     HDP_8 <- 2 profiles: C50b/C1/C3-C3bm-C1c-C50cg-C50f, C50b-C3-C3bm-C50f
-#>     HDP_9 <- 3 profiles: C3-C21-C3an, C21/C3-C1, C1/C21/C3/C42.2-C1b
-#> 
-#>   Mixture-as-taxa profiles (<70% one comp): 8
-#>   Orphan profiles (excluded from over-split count): 0
-```
-
-``` r
-
-plot_admixtures(spd, "hdp")
-```
-
-![](case-study-turb18_files/figure-html/unnamed-chunk-42-1.png)
-
-## 4. Compare fits
-
-### 4a) LDA
-
-#### lda v symportal
-
-``` r
-
-plot_symportal_comparison(spd, model="lda")
-```
-
-![](case-study-turb18_files/figure-html/unnamed-chunk-43-1.png)
-
-using the symportal naming concept:
-
-``` r
-
-name_topics(spd, model = "lda") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-```
-
-|       | group   | name                    | clade | entropy | n_samples |
-|:------|:--------|:------------------------|:------|--------:|----------:|
-| C1n   | Topic_1 | C1n-C1-C3co             | C     |    2.22 |         6 |
-| C22ad | Topic_2 | C22ad/C22-C3            | C     |    1.77 |         4 |
-| C1    | Topic_3 | C1-C1c                  | C     |    1.78 |        16 |
-| C3    | Topic_4 | C3-C21                  | C     |    2.31 |         9 |
-| C50b  | Topic_5 | C50b-C3-C3bm-C50f-C50cg | C     |    3.09 |         6 |
-| C1nu  | Topic_6 | C1nu/C1nt/C1ns-C1       | C     |    2.84 |         4 |
-| C11   | Topic_7 | C1/C3xe/C42.2/C3xf      | C     |    3.93 |        15 |
-| D1    | Topic_8 | D1-D6-D4                | D     |    2.88 |        14 |
-| C22   | Topic_9 | C22-C3-C22ad            | C     |    2.07 |        67 |
-
-#### matching lda topics to symportal Majority ITS2 sequences
-
-Cosine similarity measures the angle between two vectors, ignoring their
-magnitude — it asks “do these point in the same direction?” not “are
-they the same size?”
-
-``` r
-
-match_profiles(spd, model = "lda") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-```
-
-| group | topic_name | rank | sp_profile | cosine |
-|:---|:---|---:|:---|---:|
-| Topic_1 | C1n-C1-C3co | 1 | C1n-C1-C3co | 1.00 |
-| Topic_1 | C1n-C1-C3co | 2 | C1/C1c-C1b-C72k-C42.2 | 0.41 |
-| Topic_1 | C1n-C1-C3co | 3 | C1/C3-C1c-C1b-C1w | 0.41 |
-| Topic_2 | C22ad/C22-C3 | 1 | C22/C22ad-C3 | 0.99 |
-| Topic_2 | C22ad/C22-C3 | 2 | C22-C22ad-C3-C22ah-C1 | 0.78 |
-| Topic_2 | C22ad/C22-C3 | 3 | C22/C22ad-C3-C22ah | 0.77 |
-| Topic_3 | C1-C1c | 1 | C1/C1c-C1b-C72k-C42.2 | 1.00 |
-| Topic_3 | C1-C1c | 2 | C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3 | 1.00 |
-| Topic_3 | C1-C1c | 3 | C1/C3-C1c-C1b-C1w | 1.00 |
-| Topic_4 | C3-C21 | 1 | C3-C21-C3an | 1.00 |
-| Topic_4 | C3-C21 | 2 | C21/C3-C1 | 0.99 |
-| Topic_4 | C3-C21 | 3 | C1/C21/C3/C42.2-C1b | 0.99 |
-| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 1 | C50b-C3-C3bm-C50f | 0.94 |
-| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 2 | C50b/C1/C3-C3bm-C1c-C50cg-C50f | 0.92 |
-| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 3 | C21/C3-C1 | 0.27 |
-| Topic_6 | C1nu/C1nt/C1ns-C1 | 1 | C1nt/C1nu-C1ns-C1 | 0.99 |
-| Topic_6 | C1nu/C1nt/C1ns-C1 | 2 | C1/C3-C1c-C1b-C1w | 0.28 |
-| Topic_6 | C1nu/C1nt/C1ns-C1 | 3 | C1/C1c-C1b-C72k-C42.2 | 0.28 |
-| Topic_7 | C1/C3xe/C42.2/C3xf | 1 | C1/C3xe/C3xf-C42.2-C3ih-C1b | 1.00 |
-| Topic_7 | C1/C3xe/C42.2/C3xf | 2 | C1-C42.2-C1b-C45k-C3xd-C1ab | 0.78 |
-| Topic_7 | C1/C3xe/C42.2/C3xf | 3 | C1-C42.2-C1ab-C1b | 0.73 |
-| Topic_8 | D1-D6-D4 | 1 | D1/D4-D6-D1d | 0.98 |
-| Topic_8 | D1-D6-D4 | 2 | D1/D6/D4/D1d-D10 | 0.95 |
-| Topic_8 | D1-D6-D4 | 3 | D1/D4-D6-D4k-D1ej-D2.2 | 0.88 |
-| Topic_9 | C22-C3-C22ad | 1 | C22/C22ad-C3-C22ah | 0.97 |
-| Topic_9 | C22-C3-C22ad | 2 | C22-C22ad-C3-C22ah-C1 | 0.97 |
-| Topic_9 | C22-C3-C22ad | 3 | C22/C1-C22ad-C3-C42.2 | 0.74 |
-
-### 4b) hdp v symportal
-
-#### hdp v symportal
-
-``` r
-plot_symportal_comparison(spd, model="hdp")
-```
-
-![](case-study-turb18_files/figure-html/unnamed-chunk-46-1.png)
-
-using the symportal naming concept:
-
-``` r
-
-name_topics(spd, model = "hdp") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-```
-
-|       | group  | name                    | clade | entropy | n_samples |
-|:------|:-------|:------------------------|:------|--------:|----------:|
-| C22   | HDP_1  | C22-C22ad-C3            | C     |    2.20 |        69 |
-| C1    | HDP_2  | C1-C1c                  | C     |    1.76 |        13 |
-| D1    | HDP_3  | D1-D6-D4                | D     |    2.77 |        13 |
-| C11   | HDP_4  | C1/C22/C3-C3n-C22ad     | C     |    3.11 |         7 |
-| C12   | HDP_5  | C1/C3xe/C42.2/C3xf      | C     |    3.70 |        13 |
-| C1n   | HDP_6  | C1n-C1-C3co             | C     |    1.98 |         4 |
-| C22ad | HDP_7  | C22ad-C22-C3            | C     |    1.75 |         4 |
-| C50b  | HDP_8  | C50b-C3-C3bm-C50f-C50cg | C     |    3.12 |         6 |
-| C3    | HDP_9  | C3-2778029_C            | C     |    2.49 |         8 |
-| C1nu  | HDP_10 | C1nu/C1nt/C1ns-C1       | C     |    2.80 |         4 |
+![](case-study-turb18_files/figure-html/unnamed-chunk-41-1.png)
 
 #### matching hdp topics to symportal Majority ITS2 sequences
 
@@ -882,3 +761,107 @@ match_profiles(spd, model = "hdp") |>
 | HDP_10 | C1nu/C1nt/C1ns-C1 | 1 | C1nt/C1nu-C1ns-C1 | 0.99 |
 | HDP_10 | C1nu/C1nt/C1ns-C1 | 2 | C1/C3-C1c-C1b-C1w | 0.28 |
 | HDP_10 | C1nu/C1nt/C1ns-C1 | 3 | C1/C1c-C1b-C72k-C42.2 | 0.28 |
+
+## 4. Compare fits
+
+### 4a) LDA
+
+#### lda v symportal
+
+``` r
+
+plot_symportal_comparison(spd, model="lda", screen = TRUE, use_names = TRUE)
+#> Overdispersion test (LDA), real read counts: 8 pairs tested
+#>   mixing (rho >= 0.05):        7
+#>   ambiguous (0.01 < rho < 0.05): 1
+#>   intragenomic (rho <= 0.01):  0
+#>   rho = beta-binomial overdispersion (0 = fixed ratio; higher = mixing).
+#>   psbA (single-copy) remains the definitive arbiter.
+#> Topic pair comparison (LDA): 36 pairs
+#>   redundant     0
+#>   intragenomic  1
+#>   mixing        7
+#>   ambiguous     0
+#>   distinct      28
+#>   (psbA remains the definitive arbiter for intragenomic vs mixing)
+#> 
+#> Intragenomic screen (LDA):
+#>   9 topics -> 8 suggested biological units (1 multi-topic groups)
+#>   3 sample(s) deviate from their group's fixed ratio (flagged)
+#>   Suggestion only; theta unchanged. Use merge_topics() to apply a grouping.
+```
+
+![](case-study-turb18_files/figure-html/unnamed-chunk-43-1.png)
+
+#### matching lda topics to symportal Majority ITS2 sequences
+
+Cosine similarity measures the angle between two vectors, ignoring their
+magnitude — it asks “do these point in the same direction?” not “are
+they the same size?”
+
+``` r
+
+match_profiles(spd, model = "lda") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
+```
+
+| group | topic_name | rank | sp_profile | cosine |
+|:---|:---|---:|:---|---:|
+| Topic_1 | C1n-C1-C3co | 1 | C1n-C1-C3co | 1.00 |
+| Topic_1 | C1n-C1-C3co | 2 | C1/C1c-C1b-C72k-C42.2 | 0.41 |
+| Topic_1 | C1n-C1-C3co | 3 | C1/C3-C1c-C1b-C1w | 0.41 |
+| Topic_2 | C22ad/C22-C3 | 1 | C22/C22ad-C3 | 0.99 |
+| Topic_2 | C22ad/C22-C3 | 2 | C22-C22ad-C3-C22ah-C1 | 0.78 |
+| Topic_2 | C22ad/C22-C3 | 3 | C22/C22ad-C3-C22ah | 0.77 |
+| Topic_3 | C1-C1c | 1 | C1/C1c-C1b-C72k-C42.2 | 1.00 |
+| Topic_3 | C1-C1c | 2 | C1-C1b-C1c-C42.2-C1bh-C1br-C1cb-C3 | 1.00 |
+| Topic_3 | C1-C1c | 3 | C1/C3-C1c-C1b-C1w | 1.00 |
+| Topic_4 | C3-C21 | 1 | C3-C21-C3an | 1.00 |
+| Topic_4 | C3-C21 | 2 | C21/C3-C1 | 0.99 |
+| Topic_4 | C3-C21 | 3 | C1/C21/C3/C42.2-C1b | 0.99 |
+| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 1 | C50b-C3-C3bm-C50f | 0.94 |
+| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 2 | C50b/C1/C3-C3bm-C1c-C50cg-C50f | 0.92 |
+| Topic_5 | C50b-C3-C3bm-C50f-C50cg | 3 | C21/C3-C1 | 0.27 |
+| Topic_6 | C1nu/C1nt/C1ns-C1 | 1 | C1nt/C1nu-C1ns-C1 | 0.99 |
+| Topic_6 | C1nu/C1nt/C1ns-C1 | 2 | C1/C3-C1c-C1b-C1w | 0.28 |
+| Topic_6 | C1nu/C1nt/C1ns-C1 | 3 | C1/C1c-C1b-C72k-C42.2 | 0.28 |
+| Topic_7 | C1/C3xe/C42.2/C3xf | 1 | C1/C3xe/C3xf-C42.2-C3ih-C1b | 1.00 |
+| Topic_7 | C1/C3xe/C42.2/C3xf | 2 | C1-C42.2-C1b-C45k-C3xd-C1ab | 0.78 |
+| Topic_7 | C1/C3xe/C42.2/C3xf | 3 | C1-C42.2-C1ab-C1b | 0.73 |
+| Topic_8 | D1-D6-D4 | 1 | D1/D4-D6-D1d | 0.98 |
+| Topic_8 | D1-D6-D4 | 2 | D1/D6/D4/D1d-D10 | 0.95 |
+| Topic_8 | D1-D6-D4 | 3 | D1/D4-D6-D4k-D1ej-D2.2 | 0.88 |
+| Topic_9 | C22-C3-C22ad | 1 | C22/C22ad-C3-C22ah | 0.97 |
+| Topic_9 | C22-C3-C22ad | 2 | C22-C22ad-C3-C22ah-C1 | 0.97 |
+| Topic_9 | C22-C3-C22ad | 3 | C22/C1-C22ad-C3-C42.2 | 0.74 |
+
+### 4b) hdp v symportal
+
+``` r
+
+plot_symportal_comparison(spd, model="lda", screen = TRUE, use_names = TRUE)
+#> Overdispersion test (LDA), real read counts: 8 pairs tested
+#>   mixing (rho >= 0.05):        7
+#>   ambiguous (0.01 < rho < 0.05): 1
+#>   intragenomic (rho <= 0.01):  0
+#>   rho = beta-binomial overdispersion (0 = fixed ratio; higher = mixing).
+#>   psbA (single-copy) remains the definitive arbiter.
+#> Topic pair comparison (LDA): 36 pairs
+#>   redundant     0
+#>   intragenomic  1
+#>   mixing        7
+#>   ambiguous     0
+#>   distinct      28
+#>   (psbA remains the definitive arbiter for intragenomic vs mixing)
+#> 
+#> Intragenomic screen (LDA):
+#>   9 topics -> 8 suggested biological units (1 multi-topic groups)
+#>   3 sample(s) deviate from their group's fixed ratio (flagged)
+#>   Suggestion only; theta unchanged. Use merge_topics() to apply a grouping.
+```
+
+![](case-study-turb18_files/figure-html/unnamed-chunk-45-1.png)

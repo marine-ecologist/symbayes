@@ -81,3 +81,49 @@
   c(A = "#FF8C00", B = "#8B4513", C = "#20B2AA",
     D = "#9370DB", F = "#CD853F", G = "#808000")
 }
+
+#' Stable, distinguishable colour palette for topics / components
+#'
+#' Assigns each topic/component an evenly-spaced hue across the full colour
+#' wheel so all topics are maximally distinguishable, while keeping the
+#' assignment DETERMINISTIC by label (same label -> same colour across plots,
+#' models, and runs). Hue order is set by a deterministic hash of the label, so
+#' colours are stable but spread out rather than clustered.
+#'
+#' Clade is not used to anchor hue: in datasets dominated by one clade,
+#' clade-anchoring collapses most topics onto near-identical colours. This
+#' palette prioritises telling topics apart. (Clade grouping remains available
+#' via [.clade_palette] for clade-level fills such as [plot_top_seqs].)
+#'
+#' @param labels Character vector of topic/component labels.
+#' @param names_map Accepted for API compatibility; unused here.
+#' @return A named character vector of hex colours, one per label.
+#' @keywords internal
+.topic_palette <- function(labels, names_map = NULL) {
+  n <- length(labels)
+  if (n == 0) return(setNames(character(0), character(0)))
+
+  # Deterministic hash of a string -> value in [0, 1) (overflow-safe).
+  hash01 <- function(s) {
+    if (is.na(s) || nchar(s) == 0) return(0.5)
+    bytes <- as.integer(charToRaw(s))
+    h <- 0
+    for (byte in bytes) h <- (h * 131 + byte) %% 1000003
+    h / 1000003
+  }
+
+  # Order labels by their hash, then assign evenly-spaced hues in that order.
+  # Deterministic (hash-driven) yet maximally separated (even spacing).
+  hv <- vapply(labels, hash01, numeric(1))
+  ord <- order(hv)
+  hues <- seq(0, 1, length.out = n + 1)[seq_len(n)]
+  # Slight deterministic per-label jitter in saturation/value for extra contrast
+  cols <- character(n)
+  for (k in seq_len(n)) {
+    i <- ord[k]
+    s <- 0.65 + 0.2 * ((hv[i] * 7) %% 1)     # 0.65-0.85
+    v <- 0.80 + 0.15 * ((hv[i] * 13) %% 1)   # 0.80-0.95
+    cols[i] <- grDevices::hsv(hues[k], min(1, s), min(1, v))
+  }
+  setNames(cols, labels)
+}

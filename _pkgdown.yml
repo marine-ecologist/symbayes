@@ -31,8 +31,11 @@ navbar:
           href: articles/generalist.html
         - text: -------
         - text: "Case studies"
-        - text: Reanalysing a turbinaria SymPortal run
+        - text: Turbinaria
           href: articles/case-study-turb18.html
+        - text: Pocillopora
+          href: articles/case-study-pocillopora.html
+
     github:
       icon: fab fa-github
       href: https://github.com/yourname/symbayes
@@ -68,6 +71,7 @@ reference:
       - plot_membership
       - plot_contingency
       - plot_top_seqs
+      - plot_overdispersion
 
   - title: "DMM: diagnostics, prediction, validation"
     desc: >
@@ -97,15 +101,20 @@ reference:
   - title: "Cross-model comparison"
     desc: Compare group counts and within-sample mixing across models.
     contents:
+      - combine_symportal
       - compare_models
       - compare_mixing
       - compare_soft_hard
+      - compare_topics
       - match_profiles
+      - merge_topics
       - name_topics
       - plot_admixtures
       - plot_soft_hard
       - plot_symportal_comparison
       - set_dominance
+      - screen_intragenomic
+      - test_overdispersion
 
   - title: "Package"
     contents:

@@ -39,6 +39,20 @@ fit_dmm <- function(sp, max_k = 10, seed = 42) {
   set.seed(seed)
 
   mat <- sp$count_mat
+
+  # dmn() cannot handle samples with zero total reads. Catch this here with a
+  # clear message rather than letting dmn() throw a cryptic rowSums() error.
+  zero_rows <- rowSums(mat) == 0
+  if (any(zero_rows)) {
+    stop(sprintf(paste0(
+      "%d sample(s) have zero total reads and cannot be modelled: %s%s\n",
+      "  Run filter_samples() first, or drop these samples."),
+      sum(zero_rows),
+      paste(utils::head(rownames(mat)[zero_rows], 5), collapse = ", "),
+      if (sum(zero_rows) > 5) ", ..." else ""),
+      call. = FALSE)
+  }
+
   message(sprintf("Fitting DMM for k = 1:%d ...", max_k))
 
   fits <- lapply(seq_len(max_k), function(k) {

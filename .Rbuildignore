@@ -6,3 +6,5 @@ archive
 code
 Datasets
 ^vignettes/articles$
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -67,11 +67,22 @@ plot_pcoa <- function(sp, model = "dmm", colour_by = NULL, colours = NULL) {
 #' @param sample_label Metadata column for x labels (default `"sample_name"`).
 #' @param show_conf Annotate bars with confidence (default `TRUE`).
 #' @return A \pkg{ggplot2} object.
+#' @param scale `"relative"` (default; each sample sums to 1) or `"absolute"`
+#'   (raw read counts; bars reach different heights, revealing depth). In
+#'   absolute mode the confidence annotation is disabled.
+#' @param panel_width `"proportional"` (default; panel width scales with the
+#'   number of samples in each group, via `facet_grid` + `space = "free_x"`) or
+#'   `"equal"` (all group panels the same width, via `facet_wrap`).
 #' @examples
 #' \dontrun{ plot_barplot(sp, model = "hdp") }
 #' @export
 plot_barplot <- function(sp, model = "dmm", min_pct = 1,
-                         sample_label = "sample_name", show_conf = TRUE) {
+                         sample_label = "sample_name", show_conf = TRUE,
+                         scale = c("relative", "absolute"),
+                         panel_width = c("proportional", "equal")) {
+  scale <- match.arg(scale)
+  panel_width <- match.arg(panel_width)
+  if (scale == "absolute") show_conf <- FALSE
   .check_sp(sp); m <- .get_membership(sp, model)
   md <- sp$metadata
   if (!sample_label %in% colnames(md)) sample_label <- "sample_uid"
@@ -81,12 +92,24 @@ plot_barplot <- function(sp, model = "dmm", min_pct = 1,
                      lda = "lda_max_prop", hdp = "hdp_max_prop")
 
   rel <- sp$count_mat / rowSums(sp$count_mat)
+  # Sequence selection is always on relative abundance (which seqs to show).
   show_seqs <- names(which(apply(rel, 2, max) * 100 >= min_pct))
-  rel_show  <- rel[, show_seqs, drop = FALSE]
+
+  # Plotted values: relative (sum to 1) or absolute (raw counts).
+  if (scale == "relative") {
+    mat_show <- rel[, show_seqs, drop = FALSE]
+    other    <- 1 - rowSums(mat_show)
+    y_lab    <- "Relative abundance"
+  } else {
+    mat_show <- sp$count_mat[, show_seqs, drop = FALSE]
+    other    <- rowSums(sp$count_mat) - rowSums(mat_show)
+    y_lab    <- "Reads"
+  }
+  rel_show <- mat_show
 
   bar_df <- as.data.frame(rel_show, check.names = FALSE)
   bar_df$sample_uid <- rownames(rel_show)
-  bar_df$Other <- 1 - rowSums(rel_show)
+  bar_df$Other <- other
   bar_df <- dplyr::left_join(
     bar_df, md[, c("sample_uid", sample_label, dom_col, conf_col)],
     by = "sample_uid")
@@ -112,12 +135,16 @@ plot_barplot <- function(sp, model = "dmm", min_pct = 1,
                                guide = ggplot2::guide_legend(ncol = 4)) +
     ggplot2::scale_y_continuous(
       expand = ggplot2::expansion(mult = c(0, if (show_conf) 0.12 else 0.02))) +
-    ggplot2::facet_wrap(ggplot2::vars(.data[[dom_col]]),
-                        nrow = 1, scales = "free_x") +
+    (if (panel_width == "proportional")
+      ggplot2::facet_grid(cols = ggplot2::vars(.data[[dom_col]]),
+                          scales = "free_x", space = "free_x")
+     else
+       ggplot2::facet_wrap(ggplot2::vars(.data[[dom_col]]),
+                           nrow = 1, scales = "free_x")) +
     ggplot2::scale_x_discrete(drop = TRUE) +
     ggplot2::labs(title = sprintf("ITS2 composition by %s group (k = %d)",
                                   toupper(model), m$k),
-                  x = NULL, y = "Relative abundance", fill = "Sequence") +
+                  x = NULL, y = y_lab, fill = "Sequence") +
     ggplot2::theme_minimal(base_size = 10) +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5,
@@ -366,6 +393,9 @@ plot_top_seqs <- function(sp, model = "dmm", top_n = 8) {
 #'   annotate the bottom panel with each sample's dominant SymPortal profile.
 #' @param combine If `TRUE` (default) return a \pkg{patchwork} of both panels;
 #'   if `FALSE` return a list with `seq` and `admix` ggplots.
+#' @param scale Sequence panel (top) scaling: `"relative"` (default, sums to 1)
+#'   or `"absolute"` (raw reads, revealing depth). The component panel (bottom)
+#'   is always proportional (`theta`).
 #' @return A \pkg{patchwork} object (or a list if `combine = FALSE`).
 #' @examples
 #' \dontrun{ plot_admixtures(sp, model = "lda") }
@@ -374,7 +404,9 @@ plot_admixtures <- function(sp, model = "hdp", min_frac = 0.05,
                             min_groups = 2, seq_min_pct = 1,
                             sample_label = "sample_name",
                             box_colour = "grey15", label_profile = TRUE,
-                            combine = TRUE) {
+                            combine = TRUE,
+                            scale = c("relative", "absolute")) {
+  scale <- match.arg(scale)
   .check_sp(sp); m <- .get_membership(sp, model)
   md <- sp$metadata
   if (!sample_label %in% colnames(md)) sample_label <- "sample_uid"
@@ -399,14 +431,24 @@ plot_admixtures <- function(sp, model = "hdp", min_frac = 0.05,
   }
 
   # === TOP PANEL: ITS2 sequence composition (no facet) ========================
-  rel <- sp$count_mat[mixed, , drop = FALSE]
-  rel <- rel / rowSums(rel)
+  cm <- sp$count_mat[mixed, , drop = FALSE]
+  rel <- cm / rowSums(cm)
   show_seqs <- names(which(apply(rel, 2, max) * 100 >= seq_min_pct))
-  rel_show <- rel[, show_seqs, drop = FALSE]
+
+  if (scale == "relative") {
+    seq_mat <- rel[, show_seqs, drop = FALSE]
+    seq_other <- 1 - rowSums(seq_mat)
+    seq_ylab <- "Seq.\nabundance"
+  } else {
+    seq_mat <- cm[, show_seqs, drop = FALSE]
+    seq_other <- rowSums(cm) - rowSums(seq_mat)
+    seq_ylab <- "Reads"
+  }
+  rel_show <- seq_mat
 
   sdf <- as.data.frame(rel_show, check.names = FALSE)
   sdf$sample_uid <- rownames(rel_show)
-  sdf$Other <- 1 - rowSums(rel_show)
+  sdf$Other <- seq_other
   sdf <- tidyr::pivot_longer(sdf, cols = c(dplyr::all_of(show_seqs), "Other"),
                              names_to = "sequence", values_to = "rel_abund")
   sdf$.x <- labeller_fac(sdf$sample_uid)
@@ -424,7 +466,7 @@ plot_admixtures <- function(sp, model = "hdp", min_frac = 0.05,
       title = sprintf("Admixed samples under %s (%d samples)",
                       toupper(model), length(mixed)),
       subtitle = "Top: ITS2 sequence mix (what SymPortal profiles). Bottom: recovered component structure.",
-      x = NULL, y = "Seq.\nabundance") +
+      x = NULL, y = seq_ylab) +
     ggplot2::theme_minimal(base_size = 10) +
     ggplot2::theme(
       axis.text.x = ggplot2::element_blank(),
@@ -443,7 +485,12 @@ plot_admixtures <- function(sp, model = "hdp", min_frac = 0.05,
   long$.x <- labeller_fac(long$sample_uid)
   grp_levels <- colnames(theta)
   long$group <- factor(long$group, levels = grp_levels)
-  grp_cols <- setNames(scales::hue_pal()(length(grp_levels)), grp_levels)
+  # Clade-grouped, deterministic palette (stable across plots)
+  tmap <- tryCatch({
+    nmn <- name_topics(sp, model = model)
+    setNames(nmn$name, nmn$group)
+  }, error = function(e) setNames(grp_levels, grp_levels))
+  grp_cols <- .topic_palette(grp_levels, names_map = tmap)
 
   p_admix <- ggplot2::ggplot(long, ggplot2::aes(.data$.x, .data$prop,
                                                 fill = .data$group)) +
@@ -497,13 +544,34 @@ plot_admixtures <- function(sp, model = "hdp", min_frac = 0.05,
 #' @param box_colour Outline colour for admixture segments (default `"grey15"`).
 #' @param show_x Draw sample labels on the bottom row (default `FALSE`; with
 #'   many samples they are unreadable).
+#' @param screen If `TRUE`, row 1 uses *screen-aware* assignment
+#'   ([screen_intragenomic]): intragenomic topic pairs are collapsed to one unit
+#'   before labelling, and samples that genuinely mix distinct units (a
+#'   "mixing"-verdict pair) are shown as a distinct "true mix" band rather than
+#'   forced to a single plurality topic. Default `FALSE` (raw `which.max`).
+#' @param majority Minimum merged-unit proportion for a sample to be called that
+#'   unit under `screen = TRUE`; below it the sample is "true mix" (default 0.6).
+#' @param max_legend Maximum number of SymPortal profiles to list in the legend
+#'   (the most frequent dominant profiles). All profiles are still coloured;
+#'   only the legend is capped, to stay on-panel for large datasets (default 15).
+#' @param residual How to show model mass assigned to no component in the
+#'   admixture row: `"renormalise"` (default; rescale each bar to sum to 1) or
+#'   `"show"` (grey Residual segment so bars reach 1.0).
+#' @param use_names If `TRUE`, label topics/components in the model legend with
+#'   their SymPortal-style composition names (from [name_topics]) instead of
+#'   `Topic_N` / `HDP_N` (default `FALSE`).
 #' @return A \pkg{patchwork} object (four rows).
 #' @examples
 #' \dontrun{ plot_symportal_comparison(sp, model = "hdp") }
 #' @export
 plot_symportal_comparison <- function(sp, model = "hdp",
                                       sample_label = "sample_name",
-                                      box_colour = "grey15", show_x = FALSE) {
+                                      box_colour = "grey15", show_x = FALSE,
+                                      screen = FALSE, majority = 0.6,
+                                      max_legend = 15, n_seqs = 20,
+                                      residual = c("renormalise", "show"),
+                                      use_names = FALSE) {
+  residual <- match.arg(residual)
   .check_sp(sp); m <- .get_membership(sp, model)
   if (is.null(sp$prof_mat))
     stop("No SymPortal profiles in this object.", call. = FALSE)
@@ -513,6 +581,18 @@ plot_symportal_comparison <- function(sp, model = "hdp",
   dom_col  <- paste0(model, "_dominant")
   conf_col <- switch(model, dmm = "dmm_certainty",
                      lda = "lda_max_prop", hdp = "hdp_max_prop")
+
+  # Optional SymPortal-style names for topics/components (from name_topics()).
+  # tname maps each component label (Topic_N / HDP_N) -> composition name.
+  tname <- setNames(colnames(m$theta), colnames(m$theta))
+  if (use_names) {
+    nm <- name_topics(sp, model = model)
+    tname <- setNames(nm$name, nm$group)
+    # Guard: any component missing a name keeps its original label
+    miss <- setdiff(colnames(m$theta), names(tname))
+    if (length(miss) > 0) tname[miss] <- miss
+    tname <- tname[colnames(m$theta)]
+  }
 
   # --- Shared sample order: all samples, by model dominant group then conf ----
   theta <- m$theta
@@ -552,40 +632,214 @@ plot_symportal_comparison <- function(sp, model = "hdp",
                      axis.ticks.x = ggplot2::element_blank())
   }
 
-  # === ROW 1: model dominant-group assignment band ============================
-  r1 <- data.frame(sample_uid = common,
-                   group = factor(paste0(m$label_prefix, "_",
-                                         as.integer(sub[[dom_col]])),
-                                  levels = colnames(theta)))
-  r1$.x <- xf(r1$sample_uid)
-  grp_cols <- setNames(scales::hue_pal()(ncol(theta)), colnames(theta))
+  # === ROW 1: model assignment band (raw dominant, or screen-aware) ===========
+  mix_uids <- character(0)   # samples flagged as genuine mixes (for row-2 boxes)
+  if (!screen) {
+    r1 <- data.frame(sample_uid = common,
+                     group = factor(paste0(m$label_prefix, "_",
+                                           as.integer(sub[[dom_col]])),
+                                    levels = colnames(theta)))
+    r1$.x <- xf(r1$sample_uid)
+    grp_cols <- .topic_palette(colnames(theta), names_map = tname)
+    row1_title <- sprintf("%s assignment", toupper(model))
+    row1_name  <- toupper(model)
+    r1_stacked <- FALSE
+  } else {
+    # Screen-aware: collapse intragenomic pairs into units; show each sample's
+    # UNIT composition as a stack (pure = one colour, mix = multi-colour).
+    scr <- suppressMessages(screen_intragenomic(sp, model = model))
+    gmap <- setNames(scr$groups$group, scr$groups$component)
+    units <- sort(unique(gmap))
+    umat <- vapply(units, function(g)
+      rowSums(theta[, names(gmap)[gmap == g], drop = FALSE]),
+      numeric(nrow(theta)))
+    unit_label <- vapply(units, function(g)
+      paste(names(gmap)[gmap == g], collapse = "+"), character(1))
+    colnames(umat) <- unit_label
+    rownames(umat) <- rownames(theta)
 
-  p1 <- ggplot2::ggplot(r1, ggplot2::aes(.data$.x, 1, fill = .data$group)) +
+    # Genuine-mix flag: a sample is boxed only if (a) no unit reaches
+    # `majority`, AND (b) its top two units are connected by a "mixing"-verdict
+    # topic pair. Falling below majority alone is not enough -- the co-occurring
+    # units must be a confirmed genuine-mixing pair, not merely distinct or
+    # ambiguous topics that happen to co-occur in one sample.
+    unit_of <- gmap                                   # topic -> unit id
+    mixing_pairs <- scr$pairs[scr$pairs$verdict == "mixing", , drop = FALSE]
+    # Unordered unit-id pairs that are genuine mixing (drop within-unit pairs,
+    # which would be intragenomic-merged topics, not between-unit mixing).
+    mup <- lapply(seq_len(nrow(mixing_pairs)), function(i) {
+      u <- sort(c(unit_of[[mixing_pairs$comp_a[i]]],
+                  unit_of[[mixing_pairs$comp_b[i]]]))
+      if (u[1] == u[2]) NULL else u
+    })
+    mup <- mup[!vapply(mup, is.null, logical(1))]
+    mixing_unit_pairs <- if (length(mup)) unique(do.call(rbind, mup)) else
+      matrix(numeric(0), ncol = 2)
+    is_mixing_unit_pair <- function(u1, u2) {
+      if (nrow(mixing_unit_pairs) == 0) return(FALSE)
+      key <- sort(c(u1, u2))
+      any(mixing_unit_pairs[, 1] == key[1] & mixing_unit_pairs[, 2] == key[2])
+    }
+
+    top_p <- apply(umat, 1, max)
+    sub_majority <- rownames(umat)[top_p < majority]
+    mix_uids <- Filter(function(uid) {
+      ord2 <- order(umat[uid, ], decreasing = TRUE)
+      u1 <- units[ord2[1]]; u2 <- units[ord2[2]]
+      umat[uid, ord2[2]] >= 0.05 && is_mixing_unit_pair(u1, u2)
+    }, sub_majority)
+    mix_uids <- unlist(mix_uids)
+    if (is.null(mix_uids)) mix_uids <- character(0)
+
+    # Row 1 = single colour per sample (its dominant unit), EXCEPT confirmed
+    # genuine mixes, which show their stacked unit composition. Pure/intragenomic
+    # samples are one solid colour; only true admixtures reveal their mix here.
+    dom_unit <- unit_label[apply(umat, 1, which.max)]
+    names(dom_unit) <- rownames(umat)
+
+    non_mix <- setdiff(rownames(umat), mix_uids)
+    # Non-mix samples: a single full-height (prop = 1) row of the dominant unit.
+    r1_solid <- data.frame(
+      sample_uid = non_mix,
+      group = dom_unit[non_mix],
+      prop = 1, stringsAsFactors = FALSE)
+    # Mix samples: stacked unit composition (renormalised for a clean 0-1 bar).
+    if (length(mix_uids) > 0) {
+      um <- umat[mix_uids, , drop = FALSE]
+      um <- um / pmax(rowSums(um), .Machine$double.eps)
+      r1_mix <- as.data.frame(um, check.names = FALSE)
+      r1_mix$sample_uid <- rownames(um)
+      r1_mix <- tidyr::pivot_longer(r1_mix, -"sample_uid", names_to = "group",
+                                    values_to = "prop")
+      r1_mix <- r1_mix[r1_mix$prop > 0, ]
+      r1 <- rbind(r1_solid, as.data.frame(r1_mix))
+    } else {
+      r1 <- r1_solid
+    }
+    r1$.x <- xf(r1$sample_uid)
+    r1$group <- factor(r1$group, levels = unit_label)
+    # Unit -> name of its first constituent topic (for clade-based colouring)
+    unit_name_map <- setNames(
+      vapply(units, function(g) {
+        first_topic <- names(gmap)[gmap == g][1]
+        tname[[first_topic]]
+      }, character(1)),
+      unit_label)
+    grp_cols <- .topic_palette(unit_label, names_map = unit_name_map)
+    row1_title <- sprintf(
+      "%s assignment (screen-aware: %d units; %d genuine-mix samples, boxed by combination)",
+      toupper(model), length(unit_label), length(mix_uids))
+    row1_name  <- "Unit"
+    r1_stacked <- TRUE   # r1 now carries an explicit prop column in both cases
+  }
+
+  p1 <- ggplot2::ggplot(r1, ggplot2::aes(.data$.x, if (r1_stacked) .data$prop else 1,
+                                         fill = .data$group)) +
     ggplot2::geom_col(width = 1) +
-    ggplot2::scale_fill_manual(values = grp_cols, name = toupper(model)) +
+    ggplot2::scale_fill_manual(values = grp_cols, name = row1_name,
+                               guide = "none") +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
-    ggplot2::labs(title = sprintf("%s assignment", toupper(model)),
-                  x = NULL, y = NULL) +
+    ggplot2::labs(title = row1_title, x = NULL, y = NULL) +
     ggplot2::theme_minimal(base_size = 10) +
     ggplot2::theme(axis.text.y = ggplot2::element_blank(),
                    panel.grid = ggplot2::element_blank()) + x_theme()
 
   # === ROW 2: model admixture (boxed component proportions) ===================
-  a <- as.data.frame(theta, check.names = FALSE)
-  a$sample_uid <- rownames(theta)
+  # `residual` controls how sub-1.0 theta rows (mass HDP assigns to no extracted
+  # component) are shown: "show" caps bars with a grey Residual segment (honest
+  # but visually ragged); "renormalise" rescales each row to sum to 1 (clean
+  # bars; relative component proportions preserved, absolute residual dropped).
+  theta_plot <- theta
+  if (residual == "renormalise")
+    theta_plot <- theta / pmax(rowSums(theta), .Machine$double.eps)
+  a <- as.data.frame(theta_plot, check.names = FALSE)
+  a$sample_uid <- rownames(theta_plot)
+  if (residual == "show")
+    a$Residual <- pmax(0, 1 - rowSums(theta))
   a <- tidyr::pivot_longer(a, -"sample_uid", names_to = "group",
                            values_to = "prop")
   a <- a[a$prop > 0, ]
   a$.x <- xf(a$sample_uid)
-  a$group <- factor(a$group, levels = colnames(theta))
+  lvls <- if (residual == "show") c(colnames(theta), "Residual") else colnames(theta)
+  a$group <- factor(a$group, levels = lvls)
+  # Topic-keyed palette: clade-grouped, deterministic (stable across plots)
+  topic_cols <- .topic_palette(colnames(theta), names_map = tname)
+  if (residual == "show") topic_cols <- c(topic_cols, Residual = "grey90")
 
+  p2_labels <- c(tname, Residual = "Residual")
   p2 <- ggplot2::ggplot(a, ggplot2::aes(.data$.x, .data$prop,
                                         fill = .data$group)) +
-    ggplot2::geom_col(width = 0.9, colour = box_colour, linewidth = 0.3) +
-    ggplot2::scale_fill_manual(values = grp_cols, name = toupper(model)) +
+    ggplot2::geom_col(width = 1, linewidth = 0) +
+    ggplot2::scale_fill_manual(values = topic_cols, name = toupper(model),
+                               labels = p2_labels,
+                               guide = ggplot2::guide_legend(ncol = 2)) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ggplot2::labs(title = sprintf("%s admixture", toupper(model)),
                   x = NULL, y = "Proportion") +
+    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::theme(panel.grid.major.x = ggplot2::element_blank()) + x_theme()
+
+  # Box consistent mix combinations on ROW 1 (screen mode): group contiguous
+  # runs of samples sharing the same unit combination and draw one box per run.
+  if (screen && length(mix_uids) > 0) {
+    # Combination signature per mix sample: sorted units above min_frac (0.05)
+    combo_of <- vapply(mix_uids, function(uid) {
+      present <- unit_label[umat[uid, ] >= 0.05]
+      paste(sort(present), collapse = " + ")
+    }, character(1))
+    # Position each mix sample on the shared x-axis
+    mix_lab <- md[[sample_label]][match(mix_uids, md$sample_uid)]
+    mix_pos <- match(mix_lab, ord_lab)
+    keep <- !is.na(mix_pos)
+    mix_pos <- mix_pos[keep]; combo_of <- combo_of[keep]
+    ord2 <- order(mix_pos)
+    mix_pos <- mix_pos[ord2]; combo_of <- combo_of[ord2]
+
+    if (length(mix_pos) > 0) {
+      # Contiguous run = consecutive x-positions sharing the same combination
+      brk <- c(TRUE, diff(mix_pos) != 1 | combo_of[-1] != combo_of[-length(combo_of)])
+      run_id <- cumsum(brk)
+      runs <- lapply(split(seq_along(mix_pos), run_id), function(ix) {
+        data.frame(xmin = min(mix_pos[ix]) - 0.5,
+                   xmax = max(mix_pos[ix]) + 0.5)
+      })
+      pbox <- do.call(rbind, runs)
+      p1 <- p1 + ggplot2::geom_rect(
+        data = pbox, inherit.aes = FALSE,
+        mapping = ggplot2::aes(xmin = .data$xmin, xmax = .data$xmax,
+                               ymin = 0, ymax = 1),
+        fill = NA, colour = "grey50", linewidth = 0.5, linetype = "dashed")
+    }
+  }
+
+  # === MIDDLE PANEL: raw ITS2 sequence composition (SymPortal colours) ========
+  # The underlying data both the model and SymPortal are built from. Coloured
+  # with sp$col_dict (SymPortal's own post-MED sequence palette). ALL sequences
+  # are coloured; the legend is limited to the top `n_seqs` by abundance.
+  cm_seq <- sp$count_mat[common, , drop = FALSE]
+  rel_seq <- cm_seq / pmax(rowSums(cm_seq), .Machine$double.eps)
+  all_seqs <- colnames(rel_seq)
+  seq_rank <- sort(colSums(rel_seq), decreasing = TRUE)
+  legend_seqs <- names(utils::head(seq_rank, n_seqs))   # legend breaks only
+
+  seqdf <- as.data.frame(rel_seq, check.names = FALSE)
+  seqdf$sample_uid <- rownames(rel_seq)
+  seqdf <- tidyr::pivot_longer(seqdf, cols = dplyr::all_of(all_seqs),
+                               names_to = "sequence", values_to = "rel")
+  seqdf <- seqdf[seqdf$rel > 0, ]
+  seqdf$.x <- xf(seqdf$sample_uid)
+  seq_order <- names(seq_rank)                            # abundance order
+  seqdf$sequence <- factor(seqdf$sequence, levels = seq_order)
+  seqcols <- .build_colours(all_seqs, sp$col_dict)
+
+  pseq <- ggplot2::ggplot(seqdf, ggplot2::aes(.data$.x, .data$rel,
+                                              fill = .data$sequence)) +
+    ggplot2::geom_col(width = 1, linewidth = 0) +
+    ggplot2::scale_fill_manual(values = seqcols, name = "ITS2 sequence",
+                               breaks = legend_seqs,
+                               guide = ggplot2::guide_legend(ncol = 3)) +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    ggplot2::labs(title = "Raw ITS2 sequences", x = NULL, y = "Proportion") +
     ggplot2::theme_minimal(base_size = 10) +
     ggplot2::theme(panel.grid.major.x = ggplot2::element_blank()) + x_theme()
 
@@ -602,17 +856,48 @@ plot_symportal_comparison <- function(sp, model = "hdp",
   prof_names <- ifelse(colnames(prof) %in% names(pname),
                        pname[colnames(prof)], colnames(prof))
 
+  # Colour EVERY profile from SymPortal's own palette (prof_col_dict, keyed by
+  # UID) so the plot matches SymPortal visually; the legend is then restricted
+  # to the profiles that form a dominant assignment (below) to stay legible.
+  pcd <- sp$prof_col_dict
+  all_names <- sort(unique(prof_names))
+  prof_cols <- setNames(rep(NA_character_, length(all_names)), all_names)
+  if (!is.null(pcd)) {
+    for (uid in colnames(prof)) {
+      nm <- pname[as.character(uid)]
+      if (!is.na(nm) && nm %in% names(prof_cols) &&
+          as.character(uid) %in% names(pcd))
+        prof_cols[nm] <- pcd[[as.character(uid)]]
+    }
+  }
+  miss <- names(prof_cols)[is.na(prof_cols)]
+  if (length(miss) > 0)
+    prof_cols[miss] <- scales::hue_pal()(length(miss))
+
+  # Legend breaks: profiles that are some sample's dominant assignment, capped
+  # at the `max_legend` most frequent so the legend stays on-panel for large
+  # datasets. All profiles remain coloured; only the legend is capped.
+  # Samples with no SymPortal profile (all-zero prof row) are flagged "None"
+  # rather than given a spurious which.max dominant.
+  has_prof <- rowSums(prof) > 0
+  sp_dom_uid <- rep(NA_character_, nrow(prof))
+  sp_dom_uid[has_prof] <-
+    colnames(prof)[apply(prof[has_prof, , drop = FALSE], 1, which.max)]
+  dom_names <- ifelse(is.na(sp_dom_uid), "None", pname[as.character(sp_dom_uid)])
+  all_names_n <- c(all_names, "None")
+  prof_cols_n <- c(prof_cols, None = "grey90")
+  dom_freq <- sort(table(dom_names[dom_names != "None"]), decreasing = TRUE)
+  legend_breaks <- names(utils::head(dom_freq, max_legend))
+
   # === ROW 3: SymPortal dominant-profile assignment band ======================
-  sp_dom <- colnames(prof)[apply(prof, 1, which.max)]
   r3 <- data.frame(sample_uid = common,
-                   profile = factor(pname[sp_dom], levels = sort(unique(prof_names))))
+                   profile = factor(dom_names, levels = all_names_n))
   r3$.x <- xf(r3$sample_uid)
-  prof_cols <- setNames(scales::hue_pal()(length(unique(prof_names))),
-                        sort(unique(prof_names)))
 
   p3 <- ggplot2::ggplot(r3, ggplot2::aes(.data$.x, 1, fill = .data$profile)) +
     ggplot2::geom_col(width = 1) +
-    ggplot2::scale_fill_manual(values = prof_cols, name = "SymPortal profile",
+    ggplot2::scale_fill_manual(values = prof_cols_n, name = "SymPortal profile",
+                               breaks = legend_breaks,
                                guide = ggplot2::guide_legend(ncol = 2)) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ggplot2::labs(title = "SymPortal assignment", x = NULL, y = NULL) +
@@ -626,15 +911,13 @@ plot_symportal_comparison <- function(sp, model = "hdp",
   sdf <- tidyr::pivot_longer(sdf, -"sample_uid", names_to = "profile_uid",
                              values_to = "prop")
   sdf <- sdf[sdf$prop > 0, ]
-  sdf$profile <- factor(pname[sdf$profile_uid],
-                        levels = sort(unique(prof_names)))
+  sdf$profile <- factor(pname[as.character(sdf$profile_uid)], levels = all_names_n)
   sdf$.x <- xf(sdf$sample_uid)
 
   p4 <- ggplot2::ggplot(sdf, ggplot2::aes(.data$.x, .data$prop,
                                           fill = .data$profile)) +
-    ggplot2::geom_col(width = 0.9, colour = box_colour, linewidth = 0.3) +
-    ggplot2::scale_fill_manual(values = prof_cols, name = "SymPortal profile",
-                               guide = ggplot2::guide_legend(ncol = 2)) +
+    ggplot2::geom_col(width = 1, linewidth = 0) +
+    ggplot2::scale_fill_manual(values = prof_cols_n, guide = "none") +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ggplot2::labs(title = "SymPortal mix", x = NULL, y = "Proportion") +
     ggplot2::theme_minimal(base_size = 10) +
@@ -644,11 +927,12 @@ plot_symportal_comparison <- function(sp, model = "hdp",
   # Overlay the group boxes on every panel so they line up into columns
   p1 <- p1 + box_layer()
   p2 <- p2 + box_layer()
+  pseq <- pseq + box_layer()
   p3 <- p3 + box_layer()
   p4 <- p4 + box_layer()
 
-  patchwork::wrap_plots(list(p1, p2, p3, p4), ncol = 1,
-                        heights = c(0.4, 1, 0.4, 1)) +
+  patchwork::wrap_plots(list(p1, p2, pseq, p3, p4), ncol = 1,
+                        heights = c(0.4, 1, 1, 0.4, 1), guides = "collect") +
     patchwork::plot_annotation(
       title = sprintf("%s vs SymPortal: assignment and admixture (%d samples)",
                       toupper(model), length(common)),

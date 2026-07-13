@@ -125,6 +125,9 @@ Visualisations that apply to any fitted model via a
   : Contingency heatmap: a model's groups vs SymPortal profiles
 - [`plot_top_seqs()`](https://marine-ecologist.github.io/symbayes/reference/plot_top_seqs.md)
   : Top characterising sequences per group
+- [`plot_overdispersion()`](https://marine-ecologist.github.io/symbayes/reference/plot_overdispersion.md)
+  : Plot the overdispersion result for one component pair (real read
+  counts)
 
 ## DMM: diagnostics, prediction, validation
 
@@ -169,26 +172,53 @@ over-classification quantification.
 
 Compare group counts and within-sample mixing across models.
 
+- [`combine_symportal()`](https://marine-ecologist.github.io/symbayes/reference/combine_symportal.md)
+  :
+
+  Merge multiple SymPortal runs into one `symbayes` object
+
 - [`compare_models()`](https://marine-ecologist.github.io/symbayes/reference/compare_models.md)
   : Compare group counts and selection strategy across fitted models
+
 - [`compare_mixing()`](https://marine-ecologist.github.io/symbayes/reference/compare_mixing.md)
   : Compare within-sample mixing across models and SymPortal
+
 - [`compare_soft_hard()`](https://marine-ecologist.github.io/symbayes/reference/compare_soft_hard.md)
   : Compare a soft (fractional) model against SymPortal's profiles via
   the fuzzy Rand index
+
+- [`compare_topics()`](https://marine-ecologist.github.io/symbayes/reference/compare_topics.md)
+  : Combined pairwise topic comparison: redundancy, mixing, and ratio
+  stability
+
 - [`match_profiles()`](https://marine-ecologist.github.io/symbayes/reference/match_profiles.md)
   : Match model topics/components to SymPortal profiles by composition
+
+- [`merge_topics()`](https://marine-ecologist.github.io/symbayes/reference/merge_topics.md)
+  : Merge topics into a coarser membership (explicit, user-directed)
+
 - [`name_topics()`](https://marine-ecologist.github.io/symbayes/reference/name_topics.md)
   : Name a fitted model's topics/components in SymPortal style
+
 - [`plot_admixtures()`](https://marine-ecologist.github.io/symbayes/reference/plot_admixtures.md)
   : Admixture plot: mixed samples, sequence mix over boxed component
   structure
+
 - [`plot_soft_hard()`](https://marine-ecologist.github.io/symbayes/reference/plot_soft_hard.md)
   : Visualise soft-vs-hard co-membership agreement as heatmaps
+
 - [`plot_symportal_comparison()`](https://marine-ecologist.github.io/symbayes/reference/plot_symportal_comparison.md)
   : Four-row SymPortal-vs-model comparison over all samples
+
 - [`set_dominance()`](https://marine-ecologist.github.io/symbayes/reference/set_dominance.md)
   : Relabel dominant assignment with a minimum-dominance threshold
+
+- [`screen_intragenomic()`](https://marine-ecologist.github.io/symbayes/reference/screen_intragenomic.md)
+  : Screen for intragenomic over-splitting and suggest a biological
+  grouping
+
+- [`test_overdispersion()`](https://marine-ecologist.github.io/symbayes/reference/test_overdispersion.md)
+  : Depth-aware overdispersion test (rebuilt on real read counts)
 
 ## Package
 
@@ -206,7 +236,9 @@ Compare group counts and within-sample mixing across models.
 ### All vignettes
 
 - [6. Example using
-  Turbinaria](https://marine-ecologist.github.io/symbayes/articles/case-study-turb18.md):
+  Pocillopora](https://marine-ecologist.github.io/symbayes/articles/case-study-pocillopora.md):
+- [6. Example using
+  turbinaria](https://marine-ecologist.github.io/symbayes/articles/case-study-turb18.md):
 - [2. DMM: Dirichlet-Multinomial
   Mixture](https://marine-ecologist.github.io/symbayes/articles/dmm.md):
 - [5. Generalist plots across

@@ -1,6 +1,20 @@
 ---
-title: "6. Example using Turbinaria"
+title: "6. Example using turbinaria"
+output: html_document
+
 ---
+
+<style>
+.scroll-x {
+  overflow-x: scroll;
+  width: 100%;
+}
+
+.scroll-x img,
+.scroll-x svg {
+  max-width: none;
+}
+</style>
 
 ```{r, include = FALSE}
 
@@ -10,20 +24,11 @@ knitr::opts_chunk$set(
   cache = FALSE
 )
 
-```
-
-```{r, include=FALSE}
-
 library(tidyverse)
 library(ggplot2)
 library(readxl)
 library(kableExtra)
 library(symbayes)
-
-
-DATA_DIR  <- "~/symbayes/datasets/20230120T102936_turb18_remote"
-SP_PREFIX <- "241_20230127T162451_DBV_20230128T005644"  
-
 ```
 
 # 1. Import and filter
@@ -33,6 +38,7 @@ Import the key components from Symportal using `sp_import()` and bind to a singl
 ```{r, eval=FALSE}
 #| message: false
 #| warning: false
+
 library(tidyverse)
 library(ggplot2)
 library(readxl)
@@ -53,16 +59,20 @@ spd <- import(
   seqs_meta    = file.path(DATA_DIR, "post_med_seqs",
                            paste0(SP_PREFIX, ".seqs.absolute.meta_only.txt")),
   sample_sheet = file.path(DATA_DIR, "sample_sheet.xlsx"),
-  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json")
+  colour_dict  = file.path(DATA_DIR, "html", "color_dict_post_med.json"),
+  prof_colour_dict = file.path(DATA_DIR, "html", "prof_color_dict.json")
 )
 
 ```
-
 
 then (if needed) filter sequences to a minimum number of reads (`min_reads`), which acts identical to SymPortal's 200-sequence cutoff.
 
 ```{r, eval=FALSE}
 spd <- filter_samples(spd, min_reads = 100, min_prev = 2)
+```
+
+```{r}
+spd <- readRDS("~/symbayes/datasets/spd.rds")
 ```
 
 
@@ -368,8 +378,6 @@ plot_admixtures(spd)
 
 ```
 
-
-
 # 3. Hierarchical Dirichlet Process
 
 
@@ -391,11 +399,21 @@ hdp_plot_numcomp(spd)                # inferred number of components
 ```
 
 
+### Admixtures
 
+```{r}
+
+plot_admixtures(spd, "hdp")
+
+```
+
+### Overclassification
 
 ```{r}
 res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
+
 ```
+### Mixtures
 
 Focus on the mixture profiles:
 
@@ -403,24 +421,30 @@ Focus on the mixture profiles:
 res$mixture_profiles           # profiles that are HDP admixtures
 ```
 
-
+### Barplot
 ```{r fig.height=5, fig.width=12}
 plot_barplot(spd, model="hdp")
 ```
 
-
+### Exemplars
 ```{r fig.height=8, fig.width=12}
 
 plot_exemplars(spd, model="hdp")
 ```
 
-```{r}
-res <- hdp_vs_symportal(spd, over_split_min_frac = 0.7, mixture_thresh = 0.7)
-```
+
+### matching hdp topics to symportal Majority ITS2 sequences
+
+Cosine similarity measures the angle between two vectors, ignoring their magnitude — it asks "do these point in the same direction?" not "are they the same size?"
 
 ```{r}
 
-plot_admixtures(spd, "hdp")
+match_profiles(spd, model = "hdp") |> 
+    kable(
+    format = "html",
+    digits = 2,
+    ) |>
+    kable_styling(full_width = FALSE)
 
 ```
 
@@ -431,25 +455,17 @@ plot_admixtures(spd, "hdp")
 
 ### lda v symportal
 
-```{r fig.height=8, fig.width=12}
+<div class="scroll-x">
 
-plot_symportal_comparison(spd, model="lda")
+```{r fig.width=25, fig.height=10, out.width="150%"}
 
-```
-
-using the symportal naming concept:
-
-```{r}
-
-name_topics(spd, model = "lda") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-
+plot_symportal_comparison(spd, model="lda", screen = TRUE, use_names = TRUE)
 
 ```
+
+</div>
+
+
 
 
 ### matching lda topics to symportal Majority ITS2 sequences
@@ -471,40 +487,16 @@ match_profiles(spd, model = "lda") |>
 ## 4b) hdp v symportal
 
 
-### hdp v symportal
 
-```{r fig.height=8, fig.width=12}
-plot_symportal_comparison(spd, model="hdp")
+<div class="scroll-x">
 
-```
+```{r fig.width=25, fig.height=10, out.width="150%"}
 
-using the symportal naming concept:
-
-```{r}
-
-name_topics(spd, model = "hdp") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-
+plot_symportal_comparison(spd, model="lda", screen = TRUE, use_names = TRUE)
 
 ```
 
+</div>
 
-### matching hdp topics to symportal Majority ITS2 sequences
 
-Cosine similarity measures the angle between two vectors, ignoring their magnitude — it asks "do these point in the same direction?" not "are they the same size?"
-
-```{r}
-
-match_profiles(spd, model = "hdp") |> 
-    kable(
-    format = "html",
-    digits = 2,
-    ) |>
-    kable_styling(full_width = FALSE)
-
-```
 
